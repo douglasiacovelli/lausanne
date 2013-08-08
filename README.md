@@ -5,5 +5,5 @@ Repositório para meu projeto de Iniciação Cientifica, enquanto aluno do curso
 
 ---------------------------
 
-Aluno: Douglas Iacovelli
+Aluno: Douglas Iacovelli<br>
 Professor: Ivandre Paraboni
