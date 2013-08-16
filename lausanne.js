@@ -92,7 +92,7 @@ if (Meteor.isClient) {
 			
 			/*
 				if(user.type == 'speaker'){
-					Router.go('experiment', {id: exp_id, user_type: speaker'});
+					Router.go('experiment', {id: exp_id, user_type: 'speaker'});
 				}else{
 					Router.go('experiment', {id: exp_id, user_type: 'hearer'});
 				}
