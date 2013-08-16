@@ -49,7 +49,10 @@ ExperimentController = ApplicationController.extend({
 		var exp_id = parseInt(this.params.id);
 
 		var result_experiments = Experiments.findOne({id: exp_id});
-		return result_experiments;
+		return {
+	        'experiment': result_experiments,
+	        'img': '1'
+    	}
 	},
 
 	speaker: function(){

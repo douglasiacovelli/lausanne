@@ -37,15 +37,15 @@
 </template>
 
 <template name="speaker">
-	<h2> I'm a speaker from {{ name }} </h2>
-	<img src="/img/speaker/{{ img }}" class="{{ flip-horizontal }}">
+	<h2> I'm a speaker from {{ experiment.name }} </h2>
+	<img src="/img/speaker/{{ img }}.png" class="{{ flip-horizontal }}">
 	<input type="text" placeholder="Digite a descrição para o objeto indicado">
 </template>
 
 
 <template name="hearer">
 	<h2> I'm a Hearer from {{ name }} </h2>
-	<img src="/img/hearer/{{ img }}" class="{{ flip-horizontal }}">
+	<img src="/img/hearer/{{ img }}.png" class="{{ flip-horizontal }}">
 	<select name="letters" class="input-xlarge">
 		<option value="" selected>Selecione a letra correta</option>
 		<option value="A">A</option>
