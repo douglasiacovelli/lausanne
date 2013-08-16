@@ -1,0 +1,58 @@
+<head>
+	<title>Lausanne</title>
+</head>
+
+<body>
+</body>
+
+<template name="home">
+	<h1>Olá!</h1>
+	<div>Clicando neste botão, você será movido para a rota /experiment/id/speaker e será criado um experimento</a>
+	<button id="create" class="btn btn-primary">Criar</button></div>
+	
+	<div>Clicando neste botão, você será movido para a rota /experiment/enter para que você digite o código do experimento já criado</a>
+	<button id="create" class="btn btn-info disabled">Entrar</button></div>
+</template>
+
+<!-- <template name="entry">
+	<h1>{{ message }}</h1>
+	<p><input type="text" id="description" placeholder="Descreva o objeto indicado pela seta"></p>
+	<input type="button" id="submit" value="Click" class="btn btn-primary" />
+</template> -->
+
+
+<template name="messages">
+	{{#each messages}}
+		{{>message}}
+	{{/each}}
+</template>
+
+<template name="experiment">
+	<h1>EX {{ name }}</h1>
+	
+</template>
+
+<template name="entry">
+	<p><strong>id: {{ id }} - {{ name }}:</strong> at <small>{{ time }}</small></p>
+</template>
+
+<template name="speaker">
+	<h2> I'm a speaker from {{ name }} </h2>
+	<img src="/img/speaker/{{ img }}" class="{{ flip-horizontal }}">
+	<input type="text" placeholder="Digite a descrição para o objeto indicado">
+</template>
+
+
+<template name="hearer">
+	<h2> I'm a Hearer from {{ name }} </h2>
+	<img src="/img/hearer/{{ img }}" class="{{ flip-horizontal }}">
+	<select name="letters" class="input-xlarge">
+		<option value="" selected>Selecione a letra correta</option>
+		<option value="A">A</option>
+		<option value="I">I</option>
+		<option value="H">H</option>
+		<option value="M">M</option>
+		<option value="O">O</option>
+	</select>
+		
+</template>
