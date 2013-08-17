@@ -91,7 +91,7 @@ if (Meteor.isClient) {
 				exp_id = 1;
 			}
 			
-			Experiments.insert({ id: exp_id, name: 'Experiment '+exp_id, time: Date.now()/1000 });
+			Experiments.insert({ id: exp_id, name: 'Experimento'+exp_id, time: Date.now()/1000 });
 			
 			Router.go('experiment', {id: exp_id, user_type: 'speaker'});
 			
