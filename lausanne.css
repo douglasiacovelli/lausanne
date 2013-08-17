@@ -137,7 +137,7 @@ input{
 .enter-input{
 	font-size: 3em !important;
 	margin-top: 50px;
-	width: 100px;
+	width: 95px;
 }
 
 .enter-input::-webkit-input-placeholder { /* WebKit browsers */
@@ -159,4 +159,8 @@ select{
 	line-height: 1.4 !important;
 	padding: 10px !important;
 	height: 60px !important;
+}
+
+.alert{
+	margin-bottom: 0 !important;
 }

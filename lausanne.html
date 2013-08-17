@@ -35,13 +35,19 @@
 			<div class="span6 height">
 				<div class="row-fluid before-button">
 					<div class="span12">
-						<input type="text" id="exp_id" placeholder="0000" class="enter-input" maxlength="4">
+						<input type="text" id="enter-input" placeholder="0000" class="enter-input" maxlength="4">
+						{{#if wrong_input }}
+							<div class="alert alert-error">
+								<button type="button" class="close" data-dismiss="alert">&times;</button>
+								Digite um número de experimento <strong>válido</strong>
+							</div>
+						{{/if}}
 					</div>
 				</div>
 				<div class="row-fluid">
 					<div class="span12">
 						<div class="div-button enter">
-						<a href="#" class="full"></a>
+						<a href="#" id="enter" class="full"></a>
 							<span>Entre com o número do <b> experimento</b>!</span>
 						</div>
 					</div>
@@ -53,8 +59,10 @@
 </template>
 
 
-<template name="experiment">
-	<h1>Inicial</h1>
+<template name="experiments">
+	{{#each experiments}}
+		<p>{{ name }}</p>
+	{{/each}}
 </template>
 
 <template name="loading">

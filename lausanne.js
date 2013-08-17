@@ -8,12 +8,12 @@ Router.map(function() {
 		path: '/'
 	});
 
-	// this.route('experiment', {
-	// 	path: '/experiment/:id',
-	// 	controller: 'ExperimentController'
-		
-	// 	// function() { return this.params.id }});
-	// });
+	this.route('experiments', {
+		path: '/experiments',
+		data: function () {
+			return {experiments: Experiments.find()}
+		}
+	});
 
 	this.route('experiment', {
 		path: '/experiment/:id/:user_type',
@@ -72,6 +72,7 @@ if (Meteor.isClient) {
 	});
 
 	Session.setDefault('exp_id', null);
+	Session.setDefault('wrong_input', false);
 	
 	/* Este método é executado assim que no template home for clicado
 	 * o botão de id "create". Ele buscará o último registro para que
@@ -94,8 +95,40 @@ if (Meteor.isClient) {
 			
 			Router.go('experiment', {id: exp_id, user_type: 'speaker'});
 			
+		},
+		'click #enter' : function() {
+			var exp_id = document.getElementById('enter-input').value;
+			if(exp_id){
+				
+				// verifica se valor entrado é um número: isNaN - retorna true se não for número
+				if(!isNaN(exp_id)){
+
+					//Faz a conversão do input para número e redireciona a pessoa para a página do experimento
+					exp_id = parseInt(exp_id);
+
+					Session.set('wrong_input', false);
+					Router.go('experiment', {id: exp_id, user_type: 'hearer'});
+				}else{
+					console.log('eerroou');
+					Session.set('wrong_input', true);
+				}
+				// TO-DO: verificar se experimento existe no banco e se está ativo
+			}
+			console.log('eerroou');
+			Session.set('wrong_input', true);
+			
 		}
 	});
+
+	
+	
+	Template.home.wrong_input = function(){
+		if(Session.get('wrong_input') == true){
+	    	return true;
+	    }else{
+	    	return false;
+	    }
+	}
 
 	Template.speaker.events({
 		'click #submitDescription' : function() {
