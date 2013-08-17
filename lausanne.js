@@ -81,7 +81,7 @@ if (Meteor.isClient) {
 	 */
 
 	Template.home.events({
-		'click button#create' : function() {
+		'click #create' : function() {
 			var exp_id = Experiments.findOne({}, {sort: {time: -1}});
 			if(exp_id){
 				exp_id = exp_id.id;
@@ -98,7 +98,7 @@ if (Meteor.isClient) {
 	});
 
 	Template.speaker.events({
-		'click button#submitDescription' : function() {
+		'click #submitDescription' : function() {
 			messageInput = document.getElementById('message').value;
 			console.log(this.params);
 			Descriptions.insert({ exp_id: Session.get('exp_id'), message: messageInput, time: Date.now()/1000 });

@@ -7,12 +7,50 @@
 </body>
 
 <template name="home">
-	<h1>Olá!</h1>
-	<div>Clicando neste botão, você será movido para a rota /experiment/id/speaker e será criado um experimento</a>
-	<button id="create" class="btn btn-primary">Criar</button></div>
-	
-	<div>Clicando neste botão, você será movido para a rota /experiment/enter para que você digite o código do experimento já criado</a>
-	<button id="create" class="btn btn-info disabled">Entrar</button></div>
+	<div class="container-fluid text-center">
+		<div class="row-fluid">
+			<div class="span12">
+				<h2>Stars2</h2>
+			</div>
+		</div>
+		<div class="row-fluid stage">
+			<div class="span6 height bg-gray">
+				<a href="#" id="create" class="full"></a>
+				
+				<div class="row-fluid before-button">
+					<div class="span12">
+						<img src="img/plus.png" alt="">
+					</div>
+				</div>
+				<div class="row-fluid">
+					<div class="span12">
+						<div class="div-button create">
+							<span>Crie um <b>novo experimento</b>!</span>
+						
+						<!-- <button id="create">Criar</button> -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="span6 height">
+				<a href="#" class="full"></a>
+				
+				<div class="row-fluid before-button">
+					<div class="span12">
+						input
+					</div>
+				</div>
+				<div class="row-fluid">
+					<div class="span12">
+						<div class="div-button enter">
+							<span>Entre com o número do <b> experimento</b>!</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</div>	
 </template>
 
 
@@ -42,7 +80,7 @@
 					<input type="text" id="message" placeholder="Digite a descrição para o objeto indicado" class="input-98">
 				</div>
 				<div class="span2">
-					<button id="submitDescription" class="btn btn-success">Enviar</button>
+					<button id="submitDescription" class="btn btn-success submit">Enviar</button>
 				</div>
 			</div>
 		</div>
@@ -75,7 +113,7 @@
 					</select>
 				</div>
 				<div class="span2">
-					<button id="submitAnswer" class="btn btn-success">Enviar</button>
+					<button id="submitAnswer" class="btn btn-success submit">Enviar</button>
 				</div>
 			</div>
 		</div>
