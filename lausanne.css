@@ -1,6 +1,47 @@
 /* CSS declarations go here */
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700);
+
+body{
+	margin: 0;
+}
+
+h2{
+	color: #fff;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 400;
+	background-color: #1abc9c;
+	margin: 0;
+	padding: 15px;
+	margin-bottom: 10px;
+}
+
+h2 small{
+	color: #fff;
+	font-size: 0.7em;
+}
+
+.container-fluid{
+	margin: 0;
+	padding: 0;
+}
+
 img{
-	width: 500px;
+	width: 615px;
+	margin-bottom: 20px;
+}
+
+.content{
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+.input-98{
+	width: 98%;
+}
+
+.btn{
+	font-size: 1.2em !important;
+	height: 60px !important;
 }
 
 .flip-horizontal {
@@ -10,4 +51,18 @@ img{
 	transform: scaleX(-1);
 	filter: FlipH;
 	-ms-filter: "FlipH";
+}
+
+input{
+	font-size: 1.4em !important;
+	line-height: 1.4 !important;
+	padding: 10px !important;
+	height: 40px !important;
+}
+
+select{
+	font-size: 1.4em !important;
+	line-height: 1.4 !important;
+	padding: 10px !important;
+	height: 60px !important;
 }

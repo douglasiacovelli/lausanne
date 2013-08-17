@@ -1,4 +1,6 @@
 Experiments = new Meteor.Collection('experiments');
+Descriptions = new Meteor.Collection('descriptions');
+
 
 
 Router.map(function() { 
@@ -34,10 +36,16 @@ ExperimentController = ApplicationController.extend({
 		
 		var exp_id = parseInt(this.params.id);
 
+		Session.set('exp_id', exp_id);
+
 		var result_experiments = Experiments.findOne({id: exp_id});
+
+		var description = Descriptions.findOne({exp_id: exp_id}, {sort: {time: -1}});
+
 		return {
 	        'experiment': result_experiments,
-	        'img': '1'
+	        'img': '1',
+	        'description': description
     	}
 	},
 	
@@ -63,6 +71,8 @@ if (Meteor.isClient) {
 	    console.log('Started at ' + location.href);
 	});
 
+	Session.setDefault('exp_id', null);
+	
 	/* Este método é executado assim que no template home for clicado
 	 * o botão de id "create". Ele buscará o último registro para que
 	 * seja feita uma implementação do autoincrement no id. Este id
@@ -84,6 +94,14 @@ if (Meteor.isClient) {
 			
 			Router.go('experiment', {id: exp_id, user_type: 'speaker'});
 			
+		}
+	});
+
+	Template.speaker.events({
+		'click button#submitDescription' : function() {
+			messageInput = document.getElementById('message').value;
+			console.log(this.params);
+			Descriptions.insert({ exp_id: Session.get('exp_id'), message: messageInput, time: Date.now()/1000 });
 		}
 	});
 

@@ -1,5 +1,6 @@
 <head>
 	<title>Lausanne</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
@@ -24,22 +25,59 @@
 </template>
 
 <template name="speaker">
-	<h2> I'm a speaker from {{ experiment.name }} </h2>
-	<img src="/img/speaker/{{ img }}.png" class="{{ flip-horizontal }}">
-	<input type="text" placeholder="Digite a descrição para o objeto indicado">
+	<div class="container-fluid text-center">
+		<div class="row-fluid">
+			<div class="span12">
+				<h2> I'm a speaker from {{ experiment.name }} </h2>
+			</div>
+		</div>
+		<div class="content">
+			<div class="row-fluid">
+				<div class="span12">
+					<img src="/img/speaker/{{ img }}.png" class="{{ flip-horizontal }} ">
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="span10">
+					<input type="text" id="message" placeholder="Digite a descrição para o objeto indicado" class="input-98">
+				</div>
+				<div class="span2">
+					<button id="submitDescription" class="btn btn-success">Enviar</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 
 <template name="hearer">
-	<h2> I'm a Hearer from {{ experiment.name }} </h2>
-	<img src="/img/hearer/{{ img }}.png" class="{{ flip-horizontal }}">
-	<select name="letters" class="input-xlarge">
-		<option value="" selected>Selecione a letra correta</option>
-		<option value="A">A</option>
-		<option value="H">H</option>
-		<option value="I">I</option>
-		<option value="M">M</option>
-		<option value="O">O</option>
-	</select>
-		
+	<div class="container-fluid text-center">
+		<div class="row-fluid">
+			<div class="span12">
+				<h2><small>Descrição feita: <b>{{ description.message }}</b></small> </h2> 
+			</div>
+		</div>
+		<div class="content">
+			<div class="row-fluid">
+				<div class="span12">
+					<img src="/img/hearer/{{ img }}.png" class="{{ flip-horizontal }}">
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="span10">
+					<select name="letters" class="input-98">
+						<option value="" selected>Selecione a letra correta</option>
+						<option value="A">A</option>
+						<option value="H">H</option>
+						<option value="I">I</option>
+						<option value="M">M</option>
+						<option value="O">O</option>
+					</select>
+				</div>
+				<div class="span2">
+					<button id="submitAnswer" class="btn btn-success">Enviar</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
