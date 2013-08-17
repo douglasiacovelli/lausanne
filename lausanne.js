@@ -14,30 +14,16 @@ Router.map(function() {
 	// });
 
 	this.route('experiment', {
-		path: '/experiment/:id',
-		controller: 'ExperimentController'
-		
-		// function() { return this.params.id }});
-	});
+		path: '/experiment/:id/:user_type',
+		controller: 'ExperimentController',
+		action: 'user_type'
 
-	this.route('speaker', {
-		path: '/experiment/:id/speaker',
-		controller: 'ExperimentController'
-		
-		// function() { return this.params.id }});
-	});
-
-	this.route('hearer', {
-		path: '/experiment/:id/hearer',
-		controller: 'ExperimentController'
-		
-		// function() { return this.params.id }});
 	});
 });
 
 ApplicationController = RouteController.extend({
 	// layout: 'layout',
-	// loadingTemplate: 'loading',
+	loadingTemplate: 'loading'
 	// notFoundTemplate: 'notFound'
 });
 
@@ -54,14 +40,20 @@ ExperimentController = ApplicationController.extend({
 	        'img': '1'
     	}
 	},
+	
+	user_type: function(){
+		if(this.params.user_type == 'speaker'){
+			this.render('speaker');
+		}else{
+			this.render('hearer');
+		}
+		
 
-	speaker: function(){
-		this.render({template: 'speaker'});
-	},
-
-	hearer: function(){
-		this.render({template: 'hearer'});
 	}
+
+	// hearer: function(){
+	// 	this.render({template: 'hearer'});
+	// }
 });
 
 if (Meteor.isClient) {
@@ -90,21 +82,10 @@ if (Meteor.isClient) {
 			
 			Experiments.insert({ id: exp_id, name: 'Experiment '+exp_id, time: Date.now()/1000 });
 			
-			/*
-				if(user.type == 'speaker'){
-					Router.go('experiment', {id: exp_id, user_type: 'speaker'});
-				}else{
-					Router.go('experiment', {id: exp_id, user_type: 'hearer'});
-				}
-			*/
-			Router.go('experiment', {id: exp_id});
-			//console.log('criado'+id);
+			Router.go('experiment', {id: exp_id, user_type: 'speaker'});
+			
 		}
 	});
-
-	// Template.experiment.experiments = function(){
-	// 	return Experiments.find({}, {sort: {time: -1}});
-	// }
 
 	Session.setDefault('currentRoomId', null);
 

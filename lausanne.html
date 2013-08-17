@@ -14,26 +14,13 @@
 	<button id="create" class="btn btn-info disabled">Entrar</button></div>
 </template>
 
-<!-- <template name="entry">
-	<h1>{{ message }}</h1>
-	<p><input type="text" id="description" placeholder="Descreva o objeto indicado pela seta"></p>
-	<input type="button" id="submit" value="Click" class="btn btn-primary" />
-</template> -->
-
-
-<template name="messages">
-	{{#each messages}}
-		{{>message}}
-	{{/each}}
-</template>
 
 <template name="experiment">
-	<h1>EX {{ name }}</h1>
-	
+	<h1>Inicial</h1>
 </template>
 
-<template name="entry">
-	<p><strong>id: {{ id }} - {{ name }}:</strong> at <small>{{ time }}</small></p>
+<template name="loading">
+	Carregando...
 </template>
 
 <template name="speaker">
@@ -49,8 +36,8 @@
 	<select name="letters" class="input-xlarge">
 		<option value="" selected>Selecione a letra correta</option>
 		<option value="A">A</option>
-		<option value="I">I</option>
 		<option value="H">H</option>
+		<option value="I">I</option>
 		<option value="M">M</option>
 		<option value="O">O</option>
 	</select>
