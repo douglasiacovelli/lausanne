@@ -1,7 +1,29 @@
 Experiments = new Meteor.Collection('experiments');
-Descriptions = new Meteor.Collection('descriptions');
+Problems = new Meteor.Collection('problems');
+//Users
+Sessions = new Meteor.Collection('sessions');
+Tests = new Meteor.Collection('tests');
+Answers = new Meteor.Collection('answers');
 
 
+//Declarando os arrays que serão utilizados para selecionar as imagens
+var conditions = ['01f', '01o', '02f', '02o', '03f', '03o', '04f', '04o', '05f', '05o', '06f', '06o', '07f', '07o', '08f', '08o'];
+var types = ['1','1','1','1','1','1','1','1','2','2','2','2','2','2','2','2'];
+var flipped = ['0','0','0','0','0','0','0','0','1','1','1','1','1','1','1','1'];
+
+/**
+ * Randomize array element order in-place.
+ * Using Fisher-Yates shuffle algorithm.
+ */
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}
 
 Router.map(function() { 
 	this.route('home', {
@@ -40,12 +62,12 @@ ExperimentController = ApplicationController.extend({
 
 		var result_experiments = Experiments.findOne({id: exp_id});
 
-		var description = Descriptions.findOne({exp_id: exp_id}, {sort: {time: -1}});
+		//var problems = Problems.findOne({exp_id: exp_id}, {sort: {time: -1}});
 
 		return {
 	        'experiment': result_experiments,
 	        'img': '1',
-	        'description': description
+	        //'problems': problems
     	}
 	},
 	
@@ -73,6 +95,7 @@ if (Meteor.isClient) {
 
 	Session.setDefault('exp_id', null);
 	Session.setDefault('wrong_input', false);
+	Session.setDefault('tests_queue', false);
 	
 	/* Este método é executado assim que no template home for clicado
 	 * o botão de id "create". Ele buscará o último registro para que
@@ -82,6 +105,7 @@ if (Meteor.isClient) {
 	 */
 
 	Template.home.events({
+
 		'click #create' : function() {
 			var exp_id = Experiments.findOne({}, {sort: {time: -1}});
 			if(exp_id){
@@ -91,35 +115,50 @@ if (Meteor.isClient) {
 				exp_id = 1;
 			}
 			
+			conditions = shuffleArray(conditions);
+			types = shuffleArray(types);
+			flipped = shuffleArray(flipped);
+			
+			console.log(conditions);
+			console.log(types);
+			console.log(flipped);
+			
+
+			return;
+
 			Experiments.insert({ id: exp_id, name: 'Experimento'+exp_id, time: Date.now()/1000 });
 			
 			Router.go('experiment', {id: exp_id, user_type: 'speaker'});
 			
 		},
+
 		'click #enter' : function() {
 			var exp_id = document.getElementById('enter-input').value;
 			if(exp_id){
 				
-				// verifica se valor entrado é um número: isNaN - retorna true se não for número
+				// verifica se valor entrado é um número: 'isNaN' - retorna true se não for número
+				// SE FOR UM NÚMERO:
+					// Faz a conversão do input para número e redireciona a pessoa para a página do experimento
+					// wrong_input serve para o template saber se deve adicionar ou não a msg de erro (experimento inválido)
+					// Deve-se verificar se o experimento existe e é válido. Se for, ok.
+				
+				// SE NÃO FOR:
+					//wrong_input é true e então é exibida a msg de erro no template
 				if(!isNaN(exp_id)){
 
-					//Faz a conversão do input para número e redireciona a pessoa para a página do experimento
 					exp_id = parseInt(exp_id);
-
-					Session.set('wrong_input', false);
 					Router.go('experiment', {id: exp_id, user_type: 'hearer'});
+					Session.set('wrong_input', false);
+
 				}else{
-					console.log('eerroou');
 					Session.set('wrong_input', true);
 				}
 				// TO-DO: verificar se experimento existe no banco e se está ativo
 			}
-			console.log('eerroou');
 			Session.set('wrong_input', true);
 			
 		}
 	});
-
 	
 	
 	Template.home.wrong_input = function(){
@@ -134,7 +173,7 @@ if (Meteor.isClient) {
 		'click #submitDescription' : function() {
 			messageInput = document.getElementById('message').value;
 			console.log(this.params);
-			Descriptions.insert({ exp_id: Session.get('exp_id'), message: messageInput, time: Date.now()/1000 });
+			//Descriptions.insert({ exp_id: Session.get('exp_id'), message: messageInput, time: Date.now()/1000 });
 		}
 	});
 
@@ -145,7 +184,39 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
 
 	Meteor.startup(function () {
-		// code to run on server at startup
+		Tests.insert({type: 1, condition: '01f', correct_answer: 'H'});
+		Tests.insert({type: 1, condition: '01o', correct_answer: 'H'});
+		Tests.insert({type: 1, condition: '02f', correct_answer: 'O'});
+		Tests.insert({type: 1, condition: '02o', correct_answer: 'O'});
+		Tests.insert({type: 1, condition: '03f', correct_answer: 'M'});
+		Tests.insert({type: 1, condition: '03o', correct_answer: 'M'});
+		Tests.insert({type: 1, condition: '04f', correct_answer: 'A'});
+		Tests.insert({type: 1, condition: '04o', correct_answer: 'A'});
+		Tests.insert({type: 1, condition: '05f', correct_answer: 'M'});
+		Tests.insert({type: 1, condition: '05o', correct_answer: 'M'});
+		Tests.insert({type: 1, condition: '06f', correct_answer: 'H'});
+		Tests.insert({type: 1, condition: '06o', correct_answer: 'H'});
+		Tests.insert({type: 1, condition: '07f', correct_answer: 'I'});
+		Tests.insert({type: 1, condition: '07o', correct_answer: 'I'});
+		Tests.insert({type: 1, condition: '08f', correct_answer: 'A'});
+		Tests.insert({type: 1, condition: '08o', correct_answer: 'A'});
+		Tests.insert({type: 2, condition: '01f', correct_answer: 'H'});
+		Tests.insert({type: 2, condition: '01o', correct_answer: 'H'});
+		Tests.insert({type: 2, condition: '02f', correct_answer: 'O'});
+		Tests.insert({type: 2, condition: '02o', correct_answer: 'O'});
+		Tests.insert({type: 2, condition: '03f', correct_answer: 'M'});
+		Tests.insert({type: 2, condition: '03o', correct_answer: 'M'});
+		Tests.insert({type: 2, condition: '04f', correct_answer: 'A'});
+		Tests.insert({type: 2, condition: '04o', correct_answer: 'A'});
+		Tests.insert({type: 2, condition: '05f', correct_answer: 'M'});
+		Tests.insert({type: 2, condition: '05o', correct_answer: 'M'});
+		Tests.insert({type: 2, condition: '06f', correct_answer: 'H'});
+		Tests.insert({type: 2, condition: '06o', correct_answer: 'H'});
+		Tests.insert({type: 2, condition: '07f', correct_answer: 'I'});
+		Tests.insert({type: 2, condition: '07o', correct_answer: 'I'});
+		Tests.insert({type: 2, condition: '08f', correct_answer: 'A'});
+		Tests.insert({type: 2, condition: '08o', correct_answer: 'A'});
+		console.log('tests created');
 	});
 }
 
