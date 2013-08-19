@@ -67,7 +67,7 @@ ExperimentController = ApplicationController.extend({
 
 		var result_experiments = Experiments.findOne({id: exp_id});
 
-		var description = Descriptions.findOne({exp_id: exp_id}, {sort: {time: -1}});
+		var description = Descriptions.findOne({exp_id: exp_id}, {sort: {created: -1}});
 
 		return {
 	        'experiment': result_experiments,
@@ -153,12 +153,6 @@ if (Meteor.isClient) {
 
 			Router.go('start', {user_id: user_id});
 
-			return;
-
-			Experiments.insert({ id: exp_id, name: 'Experimento'+exp_id, time: Date.now()/1000 });
-			
-			Router.go('experiment', {id: exp_id, user_type: 'speaker'});
-			
 		}
 	});
 
@@ -182,7 +176,7 @@ if (Meteor.isClient) {
 	Template.start.events({
 
 		'click #create' : function() {
-			var exp_id = Experiments.findOne({}, {sort: {time: -1}});
+			var exp_id = Experiments.findOne({}, {sort: {created: -1}});
 			if(exp_id){
 				exp_id = exp_id.id;
 				exp_id++;	
@@ -202,7 +196,8 @@ if (Meteor.isClient) {
 			//Criar Sessions
 			//return;
 
-			Experiments.insert({ id: exp_id, name: 'Experimento'+exp_id, time: Date.now()/1000 });
+			Experiments.insert({ id: exp_id});
+			Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
 			
 			Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'speaker'});
 			
@@ -224,6 +219,10 @@ if (Meteor.isClient) {
 
 					exp_id = parseInt(exp_id);
 					
+					var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: 1}}); //Pega a primeira session criada
+
+					Sessions.update(session._id, {$set: {hearer_id:  Session.get('user_id')}});
+
 					Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'hearer'});
 					Session.set('wrong_input', false);
 
@@ -252,6 +251,10 @@ if (Meteor.isClient) {
 
 					exp_id = parseInt(exp_id);
 					
+					var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: 1}}); //Pega a primeira session criada
+
+					Sessions.update(session._id, {$set: {hearer_id:  Session.get('user_id')}});
+
 					Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'hearer'});
 					Session.set('wrong_input', false);
 
@@ -271,14 +274,14 @@ if (Meteor.isClient) {
 		'submit #submitDescription' : function() {
 			messageInput = document.getElementById('message').value;
 			console.log(this.params);
-			Descriptions.insert({ exp_id: Session.get('exp_id'), message: messageInput, time: Date.now()/1000 });
+			Descriptions.insert({ exp_id: Session.get('exp_id'), message: messageInput, created: Date.now()/1000 });
 
 		}
 	});
 
 	Template.speaker.waiting = function(){
-		var description = Descriptions.findOne({exp_id: Session.get('exp_id')}, {sort: {time: -1}});
-		var answer = Answers.findOne({exp_id: Session.get('exp_id')},  {sort: {time: -1}});
+		var description = Descriptions.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
+		var answer = Answers.findOne({exp_id: Session.get('exp_id')},  {sort: {created: -1}});
 		
 		if(description && !answer){
 			return true;
@@ -287,7 +290,7 @@ if (Meteor.isClient) {
 				return false;
 			}
 
-			if(answer.time > description.time){
+			if(answer.created > description.created){
 				return false;
 			}else{
 				return true;
@@ -297,8 +300,8 @@ if (Meteor.isClient) {
 	};
 
 	Template.hearer.waiting = function(){
-		var description = Descriptions.findOne({exp_id: Session.get('exp_id')}, {sort: {time: -1}});
-		var answer = Answers.findOne({exp_id: Session.get('exp_id')},  {sort: {time: -1}});
+		var description = Descriptions.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
+		var answer = Answers.findOne({exp_id: Session.get('exp_id')},  {sort: {created: -1}});
 		
 		if(description && !answer){
 			return false;
@@ -307,7 +310,7 @@ if (Meteor.isClient) {
 				return true;
 			}
 
-			if(answer.time > description.time){
+			if(answer.created > description.created){
 				return true;
 			}else{
 				return false;
