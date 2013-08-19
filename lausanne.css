@@ -111,7 +111,7 @@ h2 small{
 }
 
 .button-accept span{
-	color: #2c3e50;
+	color: #BB3F05;
 	font-size: 1.4em;
 }
 
@@ -219,18 +219,18 @@ input{
 	width: 95px;
 }
 
-.enter-input::-webkit-input-placeholder { /* WebKit browsers */
-    color: #e4e4e4;
+.light::-webkit-input-placeholder { /* WebKit browsers */
+	color: #e3e3e3;
 }
 
-.enter-input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color: #e4e4e4;
+.light:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+	color: #e3e3e3;
 }
-.enter-input::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color: #e4e4e4;
+.light::-moz-placeholder { /* Mozilla Firefox 19+ */
+	color: #e3e3e3;
 }
-.enter-input:-ms-input-placeholder { /* Internet Explorer 10+ */
-    color: #e4e4e4;
+.light:-ms-input-placeholder { /* Internet Explorer 10+ */
+	color: #e3e3e3;
 }
 
 select{

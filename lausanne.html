@@ -24,13 +24,13 @@
 				<div class="row-fluid form-user">
 					<div class="span12">
 						
-						<input type="text" id="enter-input" placeholder="Idade" class="enter-input" maxlength="2">
-						<select name="gender">
+						<input type="text" id="age" placeholder="Idade" class="enter-input" maxlength="2">
+						<select id="gender">
 							<option value="" selected>Sexo</option>
 							<option value="M">Masculino</option>
 							<option value="F">Feminino</option>
 						</select>
-						<select name="handwriting">
+						<select id="handwriting">
 							<option value="" selected>Mão de escrita</option>
 							<option value="destro">Destro</option>
 							<option value="canhoto">Canhoto</option>
@@ -54,7 +54,7 @@
 						<div class="span12">
 							<div class="button-accept">
 								<a href="#" class="full"></a>
-								<span>Iniciar Experimento! <br><small style="color: #8D8D8D">Clicando neste botão declaro que li e aceito o Termo de Concordância.</small></span>
+								<span><b>Iniciar Experimento!</b> <br><small style="color: #8D8D8D">Clicando neste botão declaro que li e aceito o Termo de Concordância.</small></span>
 							</div>
 						</div>
 					</div>
@@ -96,7 +96,7 @@
 			<div class="span6 height">
 				<div class="row-fluid before-button">
 					<div class="span12">
-						<input type="text" id="enter-input" placeholder="0000" class="enter-input" maxlength="4">
+						<input type="text" id="enter-input" placeholder="0000" class="enter-input light" maxlength="4">
 						{{#if wrong_input }}
 							<div class="alert alert-error">
 								<button type="button" class="close" data-dismiss="alert">&times;</button>
