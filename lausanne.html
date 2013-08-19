@@ -36,6 +36,12 @@
 							<option value="canhoto">Canhoto</option>
 							<option value="ambidestro">Ambidestro</option>
 						</select>
+						{{#if wrong_input }}
+							<div class="alert alert-error">
+								<button type="button" class="close" data-dismiss="alert">&times;</button>
+								Preencha todos os campos <strong>corretamente</strong>
+							</div>
+						{{/if}}
 					</div>
 				</div>
 			</div>
@@ -53,7 +59,7 @@
 					<div class="row-fluid">
 						<div class="span12">
 							<div class="button-accept">
-								<a href="#" class="full"></a>
+								<a id="button-accept" href="#" class="full"></a>
 								<span><b>Iniciar Experimento!</b> <br><small style="color: #8D8D8D">Clicando neste botão declaro que li e aceito o Termo de Concordância.</small></span>
 							</div>
 						</div>
@@ -96,7 +102,9 @@
 			<div class="span6 height">
 				<div class="row-fluid before-button">
 					<div class="span12">
-						<input type="text" id="enter-input" placeholder="0000" class="enter-input light" maxlength="4">
+						<form id="enter" action="action">
+							<input type="text" id="enter-input" placeholder="0000" class="enter-input light" maxlength="4">
+						</form>
 						{{#if wrong_input }}
 							<div class="alert alert-error">
 								<button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -108,7 +116,7 @@
 				<div class="row-fluid">
 					<div class="span12">
 						<div class="div-button enter">
-						<a href="#" id="enter" class="full"></a>
+						<a href="#" id="enter_btn" class="full"></a>
 							<span>Entre com o número do <b> experimento</b>!</span>
 						</div>
 					</div>

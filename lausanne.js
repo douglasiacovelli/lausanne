@@ -30,6 +30,10 @@ Router.map(function() {
 		path: '/'
 	});
 
+	this.route('start', {
+		path: '/start'
+	});
+
 	this.route('experiments', {
 		path: '/experiments',
 		data: function () {
@@ -93,10 +97,88 @@ if (Meteor.isClient) {
 	    console.log('Started at ' + location.href);
 	});
 
+	Deps.autorun(function(){
+		Meteor.subscribe('userData');
+	});
+
 	Session.setDefault('exp_id', null);
 	Session.setDefault('wrong_input', false);
 	Session.setDefault('tests_queue', false);
 	
+
+	// Accounts.onCreateUser(function(options, user) {
+	// 	user.permission = 'default';
+	// 	if (options.profile){
+	//  		user.profile = options.profile;
+	// 	}
+	// 	return user;
+	// });
+	
+	Template.home.wrong_input = function(){
+		if(Session.get('wrong_input') == true){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	Template.home.events({
+
+		'click #button-accept' : function() {
+			var age = document.getElementById('age').value;
+			if(age){
+				
+				if(!isNaN(age)){
+
+					age = parseInt(age);
+				}else{
+					Session.set('wrong_input', true);
+				}
+			}else{
+				Session.set('wrong_input', true);
+				return;
+			}
+
+			var gender = document.getElementById('gender');
+			var gender = gender.options[gender.selectedIndex].value;
+
+			var handwriting = document.getElementById('handwriting');
+			var handwriting = handwriting.options[handwriting.selectedIndex].value;
+
+			if(gender == '' || handwriting == ''){
+				Session.set('wrong_input', true);
+				console.log('vazio');
+				return;
+			}
+
+			conditions = shuffleArray(conditions);
+			types = shuffleArray(types);
+			flipped = shuffleArray(flipped);
+			
+			console.log(conditions);
+			console.log(types);
+			console.log(flipped);
+			
+
+			return;
+
+			Experiments.insert({ id: exp_id, name: 'Experimento'+exp_id, time: Date.now()/1000 });
+			
+			Router.go('experiment', {id: exp_id, user_type: 'speaker'});
+			
+		}
+	});
+
+	
+
+	Template.start.wrong_input = function(){
+		if(Session.get('wrong_input') == true){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
 	/* Este método é executado assim que no template home for clicado
 	 * o botão de id "create". Ele buscará o último registro para que
 	 * seja feita uma implementação do autoincrement no id. Este id
@@ -104,7 +186,7 @@ if (Meteor.isClient) {
 	 * do experimento. Além disso, é criado uma nova entrada de experimento.
 	 */
 
-	Template.home.events({
+	Template.start.events({
 
 		'click #create' : function() {
 			var exp_id = Experiments.findOne({}, {sort: {time: -1}});
@@ -123,8 +205,9 @@ if (Meteor.isClient) {
 			console.log(types);
 			console.log(flipped);
 			
-
-			return;
+			//TO-DO: criar lista de testes a serem executados
+			//Criar Sessions
+			//return;
 
 			Experiments.insert({ id: exp_id, name: 'Experimento'+exp_id, time: Date.now()/1000 });
 			
@@ -132,7 +215,34 @@ if (Meteor.isClient) {
 			
 		},
 
-		'click #enter' : function() {
+		'submit #enter' : function() {
+			var exp_id = document.getElementById('enter-input').value;
+			if(exp_id){
+				
+				// verifica se valor entrado é um número: 'isNaN' - retorna true se não for número
+				// SE FOR UM NÚMERO:
+					// Faz a conversão do input para número e redireciona a pessoa para a página do experimento
+					// wrong_input serve para o template saber se deve adicionar ou não a msg de erro (experimento inválido)
+					// Deve-se verificar se o experimento existe e é válido. Se for, ok.
+				
+				// SE NÃO FOR:
+					//wrong_input é true e então é exibida a msg de erro no template
+				if(!isNaN(exp_id)){
+
+					exp_id = parseInt(exp_id);
+					Router.go('experiment', {id: exp_id, user_type: 'hearer'});
+					Session.set('wrong_input', false);
+
+				}else{
+					Session.set('wrong_input', true);
+				}
+				// TO-DO: verificar se experimento existe no banco e se está ativo
+			}
+			Session.set('wrong_input', true);
+			
+		},
+
+		'click #enter_btn' : function() {
 			var exp_id = document.getElementById('enter-input').value;
 			if(exp_id){
 				
@@ -161,13 +271,7 @@ if (Meteor.isClient) {
 	});
 	
 	
-	Template.home.wrong_input = function(){
-		if(Session.get('wrong_input') == true){
-	    	return true;
-	    }else{
-	    	return false;
-	    }
-	}
+	
 
 	Template.speaker.events({
 		'click #submitDescription' : function() {
@@ -217,6 +321,13 @@ if (Meteor.isServer) {
 		Tests.insert({type: 2, condition: '08f', correct_answer: 'A'});
 		Tests.insert({type: 2, condition: '08o', correct_answer: 'A'});
 		console.log('tests created');
+	});
+
+	Meteor.publish('userData', function() {
+		if(!this.userId) return null;
+			return Meteor.users.find(this.userId, {fields: { 
+			permission: 1,
+		}});
 	});
 }
 
