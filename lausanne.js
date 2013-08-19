@@ -1,6 +1,6 @@
 Experiments = new Meteor.Collection('experiments');
 Problems = new Meteor.Collection('problems');
-//Users
+Usuarios = new Meteor.Collection('usuarios');
 Sessions = new Meteor.Collection('sessions');
 Tests = new Meteor.Collection('tests');
 Answers = new Meteor.Collection('answers');
@@ -31,7 +31,7 @@ Router.map(function() {
 	});
 
 	this.route('start', {
-		path: '/start'
+		path: '/:user_id/start'
 	});
 
 	this.route('experiments', {
@@ -42,7 +42,7 @@ Router.map(function() {
 	});
 
 	this.route('experiment', {
-		path: '/experiment/:id/:user_type',
+		path: '/experiment/:user_id/:id/:user_type',
 		controller: 'ExperimentController',
 		action: 'user_type'
 
@@ -102,17 +102,12 @@ if (Meteor.isClient) {
 	});
 
 	Session.setDefault('exp_id', null);
+	Session.setDefault('user_id', null);
 	Session.setDefault('wrong_input', false);
 	Session.setDefault('tests_queue', false);
 	
 
-	// Accounts.onCreateUser(function(options, user) {
-	// 	user.permission = 'default';
-	// 	if (options.profile){
-	//  		user.profile = options.profile;
-	// 	}
-	// 	return user;
-	// });
+	
 	
 	Template.home.wrong_input = function(){
 		if(Session.get('wrong_input') == true){
@@ -151,14 +146,11 @@ if (Meteor.isClient) {
 				return;
 			}
 
-			conditions = shuffleArray(conditions);
-			types = shuffleArray(types);
-			flipped = shuffleArray(flipped);
-			
-			console.log(conditions);
-			console.log(types);
-			console.log(flipped);
-			
+			var user_id = Usuarios.insert({ age: age, gender: gender, handwriting: handwriting , created: Date.now()});
+			Session.set('user_id', user_id);
+			console.log('user'+Session.get('user_id'));
+
+			Router.go('start', {user_id: user_id});
 
 			return;
 
@@ -211,7 +203,7 @@ if (Meteor.isClient) {
 
 			Experiments.insert({ id: exp_id, name: 'Experimento'+exp_id, time: Date.now()/1000 });
 			
-			Router.go('experiment', {id: exp_id, user_type: 'speaker'});
+			Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'speaker'});
 			
 		},
 
@@ -230,7 +222,8 @@ if (Meteor.isClient) {
 				if(!isNaN(exp_id)){
 
 					exp_id = parseInt(exp_id);
-					Router.go('experiment', {id: exp_id, user_type: 'hearer'});
+					
+					Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'hearer'});
 					Session.set('wrong_input', false);
 
 				}else{
@@ -257,7 +250,8 @@ if (Meteor.isClient) {
 				if(!isNaN(exp_id)){
 
 					exp_id = parseInt(exp_id);
-					Router.go('experiment', {id: exp_id, user_type: 'hearer'});
+					
+					Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'hearer'});
 					Session.set('wrong_input', false);
 
 				}else{
@@ -322,7 +316,7 @@ if (Meteor.isServer) {
 		Tests.insert({type: 2, condition: '08o', correct_answer: 'A'});
 		console.log('tests created');
 	});
-
+	
 	Meteor.publish('userData', function() {
 		if(!this.userId) return null;
 			return Meteor.users.find(this.userId, {fields: { 
