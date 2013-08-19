@@ -289,3 +289,11 @@ select{
 		left: 50% !important;
 	}
 }
+
+.text-input{
+	font-family: 'Open Sans', sans-serif;
+	font-size: 1.7em;
+	color: #2c3e50;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}

@@ -268,10 +268,11 @@ if (Meteor.isClient) {
 	
 
 	Template.speaker.events({
-		'click #submitDescription' : function() {
+		'submit #submitDescription' : function() {
 			messageInput = document.getElementById('message').value;
 			console.log(this.params);
 			Descriptions.insert({ exp_id: Session.get('exp_id'), message: messageInput, time: Date.now()/1000 });
+
 		}
 	});
 

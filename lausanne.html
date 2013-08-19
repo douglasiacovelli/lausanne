@@ -102,7 +102,7 @@
 			<div class="span6 height">
 				<div class="row-fluid before-button">
 					<div class="span12">
-						<form id="enter" action="" style="margin: 0">
+						<form id="enter" action="javascript:void(0);" style="margin: 0">
 							<input type="text" id="enter-input" placeholder="0000" class="enter-input light" maxlength="4">
 						</form>
 						{{#if wrong_input }}
@@ -154,17 +154,21 @@
 			<div class="row-fluid">
 				<div class="span12">
 					<img src="/img/speaker/{{ img }}.png" class="{{ flip-horizontal }} img-experiment">
+					<hr/>
+					<p class="text-input">A Seta está apontando para o/a:</p>
 				</div>
 			</div>
-			<div class="row-fluid">
-				<div class="span10">
-				A Seta está apontando para o/a:
-					<input type="text" id="message" placeholder="" class="input-98">
+			<form action="javascript:void(0);" id="submitDescription" style="margin: 0">
+				<div class="row-fluid">
+					<div class="span10">
+					
+						<input type="text" id="message" placeholder="" class="input-98">
+					</div>
+					<div class="span2">
+						<button type="submit" class="btn btn-success submit">Enviar</button>
+					</div>
 				</div>
-				<div class="span2">
-					<button id="submitDescription" class="btn btn-success submit">Enviar</button>
-				</div>
-			</div>
+			</form>
 		</div>
 	</div>
 </template>
@@ -179,7 +183,7 @@
 	<div class="container-fluid text-center">
 		<div class="row-fluid">
 			<div class="span12">
-				<h2><small>Selecione a letra correspondente à/ao <b>{{ description.message }}</b></small> </h2> 
+				<h2><small style="color: #f3f3f3; font-weight: 300">Selecione a letra correspondente à/ao <b style="color: #fff">{{ description.message }}</b></small> </h2> 
 			</div>
 		</div>
 		<div class="content">
