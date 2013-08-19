@@ -4,6 +4,7 @@ Usuarios = new Meteor.Collection('usuarios');
 Sessions = new Meteor.Collection('sessions');
 Tests = new Meteor.Collection('tests');
 Answers = new Meteor.Collection('answers');
+Descriptions = new Meteor.Collection('descriptions');
 
 
 //Declarando os arrays que serão utilizados para selecionar as imagens
@@ -66,12 +67,12 @@ ExperimentController = ApplicationController.extend({
 
 		var result_experiments = Experiments.findOne({id: exp_id});
 
-		//var problems = Problems.findOne({exp_id: exp_id}, {sort: {time: -1}});
+		var description = Descriptions.findOne({exp_id: exp_id}, {sort: {time: -1}});
 
 		return {
 	        'experiment': result_experiments,
 	        'img': '1',
-	        //'problems': problems
+	        'description': description
     	}
 	},
 	
@@ -265,15 +266,54 @@ if (Meteor.isClient) {
 	});
 	
 	
-	
 
 	Template.speaker.events({
 		'click #submitDescription' : function() {
 			messageInput = document.getElementById('message').value;
 			console.log(this.params);
-			//Descriptions.insert({ exp_id: Session.get('exp_id'), message: messageInput, time: Date.now()/1000 });
+			Descriptions.insert({ exp_id: Session.get('exp_id'), message: messageInput, time: Date.now()/1000 });
 		}
 	});
+
+	Template.speaker.waiting = function(){
+		var description = Descriptions.findOne({exp_id: Session.get('exp_id')}, {sort: {time: -1}});
+		var answer = Answers.findOne({exp_id: Session.get('exp_id')},  {sort: {time: -1}});
+		
+		if(description && !answer){
+			return true;
+		}else{
+			if(!description){
+				return false;
+			}
+
+			if(answer.time > description.time){
+				return false;
+			}else{
+				return true;
+			}
+			
+		}
+	};
+
+	Template.hearer.waiting = function(){
+		var description = Descriptions.findOne({exp_id: Session.get('exp_id')}, {sort: {time: -1}});
+		var answer = Answers.findOne({exp_id: Session.get('exp_id')},  {sort: {time: -1}});
+		
+		if(description && !answer){
+			return false;
+		}else{
+			if(!description){
+				return true;
+			}
+
+			if(answer.time > description.time){
+				return true;
+			}else{
+				return false;
+			}
+			
+		}
+	};
 
 	Session.setDefault('currentRoomId', null);
 
@@ -317,11 +357,5 @@ if (Meteor.isServer) {
 		console.log('tests created');
 	});
 	
-	Meteor.publish('userData', function() {
-		if(!this.userId) return null;
-			return Meteor.users.find(this.userId, {fields: { 
-			permission: 1,
-		}});
-	});
 }
 

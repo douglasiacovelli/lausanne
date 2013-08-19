@@ -244,3 +244,48 @@ select{
 	margin-bottom: 0 !important;
 	font-size: 1.2em;
 }
+
+.waiting{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.8);
+	z-index: 2;
+}
+
+.modal{
+	width: 500px;
+	margin-left: -200px !important;
+	position: fixed !important;
+	background-color: #fff;
+	border-radius: 4px;
+	text-align: center;
+	min-height: 150px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.modal p{
+	font-family: 'Open Sans', sans-serif;
+	font-size: 1.4em;
+	color: #e74c3c;
+	margin: 0;
+	margin-right: 20px;
+	margin-left: 20px;
+	line-height: 1.3;
+}
+
+@media (max-width: 767px){
+	body {
+		padding-right: 0px !important;
+		padding-left: 0px !important;
+	}
+
+	.modal{
+		width: 80%;
+		margin-left: -40% !important;
+		position: fixed !important;
+		top: 10% !important;
+		left: 50% !important;
+	}
+}
