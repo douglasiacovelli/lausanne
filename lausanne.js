@@ -180,7 +180,7 @@ if (Meteor.isClient) {
 			Experiments.insert({ id: exp_id, created: Date.now()/1000});
 			var session = Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
 			
-			Session.set('session_id', session._id);
+			Session.set('session_id', session);
 
 			conditions = shuffleArray(conditions);
 			types = shuffleArray(types);
@@ -282,6 +282,8 @@ if (Meteor.isClient) {
 			//console.log(this.params);
 			Descriptions.insert({ session_id: Session.get('session_id'), message: messageInput, created: Date.now()/1000 });
 
+			document.getElementById('message').value = '';
+			console.log('input limpo');
 		}
 	});
 
@@ -295,6 +297,7 @@ if (Meteor.isClient) {
 				console.log('vazio');
 				return;
 			}
+			Session.set('wrong_input', false);
 
 			var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
 			var problem = Problems.findOne(Session.get('problem_id'));
@@ -314,6 +317,10 @@ if (Meteor.isClient) {
 				isCorrect = true;
 
 				Problems.update(Session.get('problem_id'), {$set: {isActive: false}});
+
+			}else{
+				Problems.update(Session.get('problem_id'), {$set: {created: Date.now()/1000}}); //atualiza seu created para que ele fique maior que todos e vá para o fim da fila
+				console.log('Fim da fila problem '+Session.get('problem_id'));
 			}
 			
 			var answer = Answers.insert({ session_id: Session.get('session_id'), description: description.message, answer: answer, isCorrect: isCorrect, created: Date.now()/1000 });
@@ -367,7 +374,7 @@ if (Meteor.isClient) {
 	Template.speaker.problem = function(){
 		var session = Sessions.findOne({exp_id: Session.get('exp_id')},{sort: {created: -1}}); //Pega a última sessão do experimento atual
 		if(session){
-			var problem = Problems.findOne({session_id: session._id, isActive: true});
+			var problem = Problems.findOne({session_id: session._id, isActive: true}, {sort: {created: 1}});
 			Session.set('problem_id', problem._id)
 			
 			return problem;
