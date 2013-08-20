@@ -153,7 +153,7 @@
 		<div class="content">
 			<div class="row-fluid">
 				<div class="span12">
-					<img src="/img/speaker/{{ img }}.png" class="{{ flip-horizontal }} img-experiment">
+					<img src="/img/speaker/{{ problem.img }}.png" class="{{#if problem.isFlipped }} flip-horizontal {{/if}} img-experiment">
 					<hr/>
 					<p class="text-input">A Seta está apontando para o/a:</p>
 				</div>
@@ -189,7 +189,7 @@
 		<div class="content">
 			<div class="row-fluid">
 				<div class="span12">
-					<img src="/img/hearer/{{ img }}.png" class="{{ flip-horizontal }}">
+					<img src="/img/hearer/{{ problem.img }}.png" class="{{#if problem.isFlipped }} flip-horizontal {{/if}} img-experiment">
 				</div>
 			</div>
 			<div class="row-fluid">

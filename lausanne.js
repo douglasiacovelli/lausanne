@@ -57,10 +57,8 @@ ApplicationController = RouteController.extend({
 });
 
 ExperimentController = ApplicationController.extend({
-	
-	
 	data: function(){
-		
+
 		var exp_id = parseInt(this.params.id);
 
 		Session.set('exp_id', exp_id);
@@ -69,13 +67,9 @@ ExperimentController = ApplicationController.extend({
 
 		var description = Descriptions.findOne({exp_id: exp_id}, {sort: {created: -1}});
 
-		return {
-	        'experiment': result_experiments,
-	        'img': '1',
-	        'description': description
-    	}
+		return {'experiment': result_experiments};
 	},
-	
+
 	user_type: function(){
 		if(this.params.user_type == 'speaker'){
 			this.render('speaker');
@@ -86,9 +80,6 @@ ExperimentController = ApplicationController.extend({
 
 	}
 
-	// hearer: function(){
-	// 	this.render({template: 'hearer'});
-	// }
 });
 
 if (Meteor.isClient) {
@@ -108,8 +99,6 @@ if (Meteor.isClient) {
 	Session.setDefault('tests_queue', false);
 	
 
-	
-	
 	Template.home.wrong_input = function(){
 		if(Session.get('wrong_input') == true){
 			return true;
@@ -149,8 +138,8 @@ if (Meteor.isClient) {
 
 			var user_id = Usuarios.insert({ age: age, gender: gender, handwriting: handwriting , created: Date.now()});
 			Session.set('user_id', user_id);
-			console.log('user'+Session.get('user_id'));
 
+			Session.set('wrong_input', false);
 			Router.go('start', {user_id: user_id});
 
 		}
@@ -177,6 +166,7 @@ if (Meteor.isClient) {
 
 		'click #create' : function() {
 			var exp_id = Experiments.findOne({}, {sort: {created: -1}});
+			
 			if(exp_id){
 				exp_id = exp_id.id;
 				exp_id++;	
@@ -184,20 +174,25 @@ if (Meteor.isClient) {
 				exp_id = 1;
 			}
 			
+
+			Experiments.insert({ id: exp_id});
+			Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
+
 			conditions = shuffleArray(conditions);
 			types = shuffleArray(types);
 			flipped = shuffleArray(flipped);
+
+			for (var i = 0; i < 16; i++) {
+				var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
+				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
+				Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], description: null, answer: null, isActive: true, created: Date.now()/1000});
+			};
 			
 			console.log(conditions);
 			console.log(types);
 			console.log(flipped);
 			
-			//TO-DO: criar lista de testes a serem executados
-			//Criar Sessions
-			//return;
-
-			Experiments.insert({ id: exp_id});
-			Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
+			
 			
 			Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'speaker'});
 			
@@ -268,7 +263,6 @@ if (Meteor.isClient) {
 		}
 	});
 	
-	
 
 	Template.speaker.events({
 		'submit #submitDescription' : function() {
@@ -281,7 +275,7 @@ if (Meteor.isClient) {
 
 	Template.speaker.waiting = function(){
 		var description = Descriptions.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
-		var answer = Answers.findOne({exp_id: Session.get('exp_id')},  {sort: {created: -1}});
+		var answer = Answers.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
 		
 		if(description && !answer){
 			return true;
@@ -295,7 +289,7 @@ if (Meteor.isClient) {
 			}else{
 				return true;
 			}
-			
+			return false;
 		}
 	};
 
@@ -318,6 +312,25 @@ if (Meteor.isClient) {
 			
 		}
 	};
+
+	Template.speaker.problem = function(){
+		var session = Sessions.findOne({exp_id: Session.get('exp_id')},{sort: {created: -1}}); //Pega a última sessão do experimento atual
+		if(session){
+			return Problems.findOne({session_id: session._id, isActive: true});
+		}else{
+			return null;
+		}
+	};
+
+	Template.hearer.problem = function(){
+		var session = Sessions.findOne({exp_id: Session.get('exp_id')},{sort: {created: -1}}); //Pega a última sessão do experimento atual
+		if(session){
+			return Problems.findOne({session_id: session._id, isActive: true});
+		}else{
+			return null;
+		}
+	};
+
 
 	Session.setDefault('currentRoomId', null);
 
