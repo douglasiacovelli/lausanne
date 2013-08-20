@@ -65,9 +65,10 @@ ExperimentController = ApplicationController.extend({
 
 		var result_experiments = Experiments.findOne({id: exp_id});
 
-		var description = Descriptions.findOne({exp_id: exp_id}, {sort: {created: -1}});
+		var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
 
-		return {'experiment': result_experiments};
+		return {'experiment': result_experiments,
+				'description': description};
 	},
 
 	user_type: function(){
@@ -94,9 +95,11 @@ if (Meteor.isClient) {
 	});
 
 	Session.setDefault('exp_id', null);
+	Session.setDefault('session_id', null);
 	Session.setDefault('user_id', null);
 	Session.setDefault('wrong_input', false);
 	Session.setDefault('tests_queue', false);
+	Session.setDefault('problem_id', null);
 	
 
 	Template.home.wrong_input = function(){
@@ -173,10 +176,11 @@ if (Meteor.isClient) {
 			}else{
 				exp_id = 1;
 			}
-			
 
-			Experiments.insert({ id: exp_id});
-			Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
+			Experiments.insert({ id: exp_id, created: Date.now()/1000});
+			var session = Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
+			
+			Session.set('session_id', session._id);
 
 			conditions = shuffleArray(conditions);
 			types = shuffleArray(types);
@@ -185,7 +189,7 @@ if (Meteor.isClient) {
 			for (var i = 0; i < 16; i++) {
 				var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
 				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
-				Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], description: null, answer: null, isActive: true, created: Date.now()/1000});
+				Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});
 			};
 			
 			console.log(conditions);
@@ -221,6 +225,10 @@ if (Meteor.isClient) {
 					Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'hearer'});
 					Session.set('wrong_input', false);
 
+					var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
+					Session.set('session_id', session._id);
+					console.log(session+'QAQUI');
+
 				}else{
 					Session.set('wrong_input', true);
 				}
@@ -253,6 +261,10 @@ if (Meteor.isClient) {
 					Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'hearer'});
 					Session.set('wrong_input', false);
 
+					var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
+					Session.set('session_id', session._id);
+					console.log(session+'QAQUI');
+
 				}else{
 					Session.set('wrong_input', true);
 				}
@@ -267,15 +279,45 @@ if (Meteor.isClient) {
 	Template.speaker.events({
 		'submit #submitDescription' : function() {
 			messageInput = document.getElementById('message').value;
-			console.log(this.params);
-			Descriptions.insert({ exp_id: Session.get('exp_id'), message: messageInput, created: Date.now()/1000 });
+			//console.log(this.params);
+			Descriptions.insert({ session_id: Session.get('session_id'), message: messageInput, created: Date.now()/1000 });
+
+		}
+	});
+
+	Template.hearer.events({
+		'submit #submitAnswer' : function() {
+			var answer = document.getElementById('answer_select');
+			var answer = answer.options[answer.selectedIndex].value;
+
+			if(answer == ''){
+				Session.set('wrong_input', true);
+				console.log('vazio');
+				return;
+			}
+
+			var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
+			var problem = Problems.findOne(Session.get('problem_id'));
+
+			var img = problem.img;
+
+			img = img.substring(6,12);
+			console.log(img);
+
+			var test = Tests.findOne({img: img});
+			console.log(test);
+
+			var answer = Answers.insert({ session_id: Session.get('session_id'), description: description.message, answer: answer, created: Date.now()/1000 });
+			//Verificar se resposta dada foi correta
+
+			//Problems.update(Session.get('problem_id'), {$set: {}});});
 
 		}
 	});
 
 	Template.speaker.waiting = function(){
-		var description = Descriptions.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
-		var answer = Answers.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
+		var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
+		var answer = Answers.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
 		
 		if(description && !answer){
 			return true;
@@ -294,8 +336,8 @@ if (Meteor.isClient) {
 	};
 
 	Template.hearer.waiting = function(){
-		var description = Descriptions.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
-		var answer = Answers.findOne({exp_id: Session.get('exp_id')},  {sort: {created: -1}});
+		var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
+		var answer = Answers.findOne({session_id: Session.get('session_id')},  {sort: {created: -1}});
 		
 		if(description && !answer){
 			return false;
@@ -316,7 +358,10 @@ if (Meteor.isClient) {
 	Template.speaker.problem = function(){
 		var session = Sessions.findOne({exp_id: Session.get('exp_id')},{sort: {created: -1}}); //Pega a última sessão do experimento atual
 		if(session){
-			return Problems.findOne({session_id: session._id, isActive: true});
+			var problem = Problems.findOne({session_id: session._id, isActive: true});
+			Session.set('problem_id', problem._id)
+			
+			return problem;
 		}else{
 			return null;
 		}
@@ -325,7 +370,10 @@ if (Meteor.isClient) {
 	Template.hearer.problem = function(){
 		var session = Sessions.findOne({exp_id: Session.get('exp_id')},{sort: {created: -1}}); //Pega a última sessão do experimento atual
 		if(session){
-			return Problems.findOne({session_id: session._id, isActive: true});
+			var problem = Problems.findOne({session_id: session._id, isActive: true});
+			Session.set('problem_id', problem._id)
+
+			return problem;
 		}else{
 			return null;
 		}
@@ -339,38 +387,38 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
 
 	Meteor.startup(function () {
-		Tests.insert({type: 1, condition: '01f', correct_answer: 'H'});
-		Tests.insert({type: 1, condition: '01o', correct_answer: 'H'});
-		Tests.insert({type: 1, condition: '02f', correct_answer: 'O'});
-		Tests.insert({type: 1, condition: '02o', correct_answer: 'O'});
-		Tests.insert({type: 1, condition: '03f', correct_answer: 'M'});
-		Tests.insert({type: 1, condition: '03o', correct_answer: 'M'});
-		Tests.insert({type: 1, condition: '04f', correct_answer: 'A'});
-		Tests.insert({type: 1, condition: '04o', correct_answer: 'A'});
-		Tests.insert({type: 1, condition: '05f', correct_answer: 'M'});
-		Tests.insert({type: 1, condition: '05o', correct_answer: 'M'});
-		Tests.insert({type: 1, condition: '06f', correct_answer: 'H'});
-		Tests.insert({type: 1, condition: '06o', correct_answer: 'H'});
-		Tests.insert({type: 1, condition: '07f', correct_answer: 'I'});
-		Tests.insert({type: 1, condition: '07o', correct_answer: 'I'});
-		Tests.insert({type: 1, condition: '08f', correct_answer: 'A'});
-		Tests.insert({type: 1, condition: '08o', correct_answer: 'A'});
-		Tests.insert({type: 2, condition: '01f', correct_answer: 'H'});
-		Tests.insert({type: 2, condition: '01o', correct_answer: 'H'});
-		Tests.insert({type: 2, condition: '02f', correct_answer: 'O'});
-		Tests.insert({type: 2, condition: '02o', correct_answer: 'O'});
-		Tests.insert({type: 2, condition: '03f', correct_answer: 'M'});
-		Tests.insert({type: 2, condition: '03o', correct_answer: 'M'});
-		Tests.insert({type: 2, condition: '04f', correct_answer: 'A'});
-		Tests.insert({type: 2, condition: '04o', correct_answer: 'A'});
-		Tests.insert({type: 2, condition: '05f', correct_answer: 'M'});
-		Tests.insert({type: 2, condition: '05o', correct_answer: 'M'});
-		Tests.insert({type: 2, condition: '06f', correct_answer: 'H'});
-		Tests.insert({type: 2, condition: '06o', correct_answer: 'H'});
-		Tests.insert({type: 2, condition: '07f', correct_answer: 'I'});
-		Tests.insert({type: 2, condition: '07o', correct_answer: 'I'});
-		Tests.insert({type: 2, condition: '08f', correct_answer: 'A'});
-		Tests.insert({type: 2, condition: '08o', correct_answer: 'A'});
+		Tests.insert({msg: '01f-t1' ,type: 1, condition: '01f', correct_answer: 'H'});
+		Tests.insert({msg: '01o-t1' ,type: 1, condition: '01o', correct_answer: 'H'});
+		Tests.insert({msg: '02f-t1' ,type: 1, condition: '02f', correct_answer: 'O'});
+		Tests.insert({msg: '02o-t1' ,type: 1, condition: '02o', correct_answer: 'O'});
+		Tests.insert({msg: '03f-t1' ,type: 1, condition: '03f', correct_answer: 'M'});
+		Tests.insert({msg: '03o-t1' ,type: 1, condition: '03o', correct_answer: 'M'});
+		Tests.insert({msg: '04f-t1' ,type: 1, condition: '04f', correct_answer: 'A'});
+		Tests.insert({msg: '04o-t1' ,type: 1, condition: '04o', correct_answer: 'A'});
+		Tests.insert({msg: '05f-t1' ,type: 1, condition: '05f', correct_answer: 'M'});
+		Tests.insert({msg: '05o-t1' ,type: 1, condition: '05o', correct_answer: 'M'});
+		Tests.insert({msg: '06f-t1' ,type: 1, condition: '06f', correct_answer: 'H'});
+		Tests.insert({msg: '06o-t1' ,type: 1, condition: '06o', correct_answer: 'H'});
+		Tests.insert({msg: '07f-t1' ,type: 1, condition: '07f', correct_answer: 'I'});
+		Tests.insert({msg: '07o-t1' ,type: 1, condition: '07o', correct_answer: 'I'});
+		Tests.insert({msg: '08f-t1' ,type: 1, condition: '08f', correct_answer: 'A'});
+		Tests.insert({msg: '08o-t1' ,type: 1, condition: '08o', correct_answer: 'A'});
+		Tests.insert({msg: '01f-t2' ,type: 2, condition: '01f', correct_answer: 'H'});
+		Tests.insert({msg: '01o-t2' ,type: 2, condition: '01o', correct_answer: 'H'});
+		Tests.insert({msg: '02f-t2' ,type: 2, condition: '02f', correct_answer: 'O'});
+		Tests.insert({msg: '02o-t2' ,type: 2, condition: '02o', correct_answer: 'O'});
+		Tests.insert({msg: '03f-t2' ,type: 2, condition: '03f', correct_answer: 'M'});
+		Tests.insert({msg: '03o-t2' ,type: 2, condition: '03o', correct_answer: 'M'});
+		Tests.insert({msg: '04f-t2' ,type: 2, condition: '04f', correct_answer: 'A'});
+		Tests.insert({msg: '04o-t2' ,type: 2, condition: '04o', correct_answer: 'A'});
+		Tests.insert({msg: '05f-t2' ,type: 2, condition: '05f', correct_answer: 'M'});
+		Tests.insert({msg: '05o-t2' ,type: 2, condition: '05o', correct_answer: 'M'});
+		Tests.insert({msg: '06f-t2' ,type: 2, condition: '06f', correct_answer: 'H'});
+		Tests.insert({msg: '06o-t2' ,type: 2, condition: '06o', correct_answer: 'H'});
+		Tests.insert({msg: '07f-t2' ,type: 2, condition: '07f', correct_answer: 'I'});
+		Tests.insert({msg: '07o-t2' ,type: 2, condition: '07o', correct_answer: 'I'});
+		Tests.insert({msg: '08f-t2' ,type: 2, condition: '08f', correct_answer: 'A'});
+		Tests.insert({msg: '08o-t2' ,type: 2, condition: '08o', correct_answer: 'A'});
 		console.log('tests created');
 	});
 	

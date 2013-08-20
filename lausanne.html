@@ -192,9 +192,10 @@
 					<img src="/img/hearer/{{ problem.img }}.png" class="{{#if problem.isFlipped }} flip-horizontal {{/if}} img-experiment">
 				</div>
 			</div>
+			<form action="javascript:void(0);" id="submitAnswer" style="margin: 0">
 			<div class="row-fluid">
 				<div class="span10">
-					<select name="letters" class="input-98">
+					<select name="letters" id="answer_select" class="input-98">
 						<option value="" selected>Selecione a letra</option>
 						<option value="A">A</option>
 						<option value="H">H</option>
@@ -204,9 +205,10 @@
 					</select>
 				</div>
 				<div class="span2">
-					<button id="submitAnswer" class="btn btn-success submit">Enviar</button>
+					<button id="submitAnswer" type="submit" class="btn btn-success submit">Enviar</button>
 				</div>
 			</div>
+			</form>
 		</div>
 	</div>
 </template>
