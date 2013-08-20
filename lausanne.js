@@ -307,10 +307,19 @@ if (Meteor.isClient) {
 			var test = Tests.findOne({img: img});
 			console.log(test);
 
-			var answer = Answers.insert({ session_id: Session.get('session_id'), description: description.message, answer: answer, created: Date.now()/1000 });
+
+			var isCorrect = false;
+
+			if(test.correct_answer == answer){
+				isCorrect = true;
+
+				Problems.update(Session.get('problem_id'), {$set: {isActive: false}});
+			}
+			
+			var answer = Answers.insert({ session_id: Session.get('session_id'), description: description.message, answer: answer, isCorrect: isCorrect, created: Date.now()/1000 });
 			//Verificar se resposta dada foi correta
 
-			//Problems.update(Session.get('problem_id'), {$set: {}});});
+			
 
 		}
 	});
@@ -387,38 +396,38 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
 
 	Meteor.startup(function () {
-		Tests.insert({msg: '01f-t1' ,type: 1, condition: '01f', correct_answer: 'H'});
-		Tests.insert({msg: '01o-t1' ,type: 1, condition: '01o', correct_answer: 'H'});
-		Tests.insert({msg: '02f-t1' ,type: 1, condition: '02f', correct_answer: 'O'});
-		Tests.insert({msg: '02o-t1' ,type: 1, condition: '02o', correct_answer: 'O'});
-		Tests.insert({msg: '03f-t1' ,type: 1, condition: '03f', correct_answer: 'M'});
-		Tests.insert({msg: '03o-t1' ,type: 1, condition: '03o', correct_answer: 'M'});
-		Tests.insert({msg: '04f-t1' ,type: 1, condition: '04f', correct_answer: 'A'});
-		Tests.insert({msg: '04o-t1' ,type: 1, condition: '04o', correct_answer: 'A'});
-		Tests.insert({msg: '05f-t1' ,type: 1, condition: '05f', correct_answer: 'M'});
-		Tests.insert({msg: '05o-t1' ,type: 1, condition: '05o', correct_answer: 'M'});
-		Tests.insert({msg: '06f-t1' ,type: 1, condition: '06f', correct_answer: 'H'});
-		Tests.insert({msg: '06o-t1' ,type: 1, condition: '06o', correct_answer: 'H'});
-		Tests.insert({msg: '07f-t1' ,type: 1, condition: '07f', correct_answer: 'I'});
-		Tests.insert({msg: '07o-t1' ,type: 1, condition: '07o', correct_answer: 'I'});
-		Tests.insert({msg: '08f-t1' ,type: 1, condition: '08f', correct_answer: 'A'});
-		Tests.insert({msg: '08o-t1' ,type: 1, condition: '08o', correct_answer: 'A'});
-		Tests.insert({msg: '01f-t2' ,type: 2, condition: '01f', correct_answer: 'H'});
-		Tests.insert({msg: '01o-t2' ,type: 2, condition: '01o', correct_answer: 'H'});
-		Tests.insert({msg: '02f-t2' ,type: 2, condition: '02f', correct_answer: 'O'});
-		Tests.insert({msg: '02o-t2' ,type: 2, condition: '02o', correct_answer: 'O'});
-		Tests.insert({msg: '03f-t2' ,type: 2, condition: '03f', correct_answer: 'M'});
-		Tests.insert({msg: '03o-t2' ,type: 2, condition: '03o', correct_answer: 'M'});
-		Tests.insert({msg: '04f-t2' ,type: 2, condition: '04f', correct_answer: 'A'});
-		Tests.insert({msg: '04o-t2' ,type: 2, condition: '04o', correct_answer: 'A'});
-		Tests.insert({msg: '05f-t2' ,type: 2, condition: '05f', correct_answer: 'M'});
-		Tests.insert({msg: '05o-t2' ,type: 2, condition: '05o', correct_answer: 'M'});
-		Tests.insert({msg: '06f-t2' ,type: 2, condition: '06f', correct_answer: 'H'});
-		Tests.insert({msg: '06o-t2' ,type: 2, condition: '06o', correct_answer: 'H'});
-		Tests.insert({msg: '07f-t2' ,type: 2, condition: '07f', correct_answer: 'I'});
-		Tests.insert({msg: '07o-t2' ,type: 2, condition: '07o', correct_answer: 'I'});
-		Tests.insert({msg: '08f-t2' ,type: 2, condition: '08f', correct_answer: 'A'});
-		Tests.insert({msg: '08o-t2' ,type: 2, condition: '08o', correct_answer: 'A'});
+		Tests.insert({img: '01f-t1' ,type: 1, condition: '01f', correct_answer: 'H'});
+		Tests.insert({img: '01o-t1' ,type: 1, condition: '01o', correct_answer: 'H'});
+		Tests.insert({img: '02f-t1' ,type: 1, condition: '02f', correct_answer: 'O'});
+		Tests.insert({img: '02o-t1' ,type: 1, condition: '02o', correct_answer: 'O'});
+		Tests.insert({img: '03f-t1' ,type: 1, condition: '03f', correct_answer: 'M'});
+		Tests.insert({img: '03o-t1' ,type: 1, condition: '03o', correct_answer: 'M'});
+		Tests.insert({img: '04f-t1' ,type: 1, condition: '04f', correct_answer: 'A'});
+		Tests.insert({img: '04o-t1' ,type: 1, condition: '04o', correct_answer: 'A'});
+		Tests.insert({img: '05f-t1' ,type: 1, condition: '05f', correct_answer: 'M'});
+		Tests.insert({img: '05o-t1' ,type: 1, condition: '05o', correct_answer: 'M'});
+		Tests.insert({img: '06f-t1' ,type: 1, condition: '06f', correct_answer: 'H'});
+		Tests.insert({img: '06o-t1' ,type: 1, condition: '06o', correct_answer: 'H'});
+		Tests.insert({img: '07f-t1' ,type: 1, condition: '07f', correct_answer: 'I'});
+		Tests.insert({img: '07o-t1' ,type: 1, condition: '07o', correct_answer: 'I'});
+		Tests.insert({img: '08f-t1' ,type: 1, condition: '08f', correct_answer: 'A'});
+		Tests.insert({img: '08o-t1' ,type: 1, condition: '08o', correct_answer: 'A'});
+		Tests.insert({img: '01f-t2' ,type: 2, condition: '01f', correct_answer: 'H'});
+		Tests.insert({img: '01o-t2' ,type: 2, condition: '01o', correct_answer: 'H'});
+		Tests.insert({img: '02f-t2' ,type: 2, condition: '02f', correct_answer: 'O'});
+		Tests.insert({img: '02o-t2' ,type: 2, condition: '02o', correct_answer: 'O'});
+		Tests.insert({img: '03f-t2' ,type: 2, condition: '03f', correct_answer: 'M'});
+		Tests.insert({img: '03o-t2' ,type: 2, condition: '03o', correct_answer: 'M'});
+		Tests.insert({img: '04f-t2' ,type: 2, condition: '04f', correct_answer: 'A'});
+		Tests.insert({img: '04o-t2' ,type: 2, condition: '04o', correct_answer: 'A'});
+		Tests.insert({img: '05f-t2' ,type: 2, condition: '05f', correct_answer: 'M'});
+		Tests.insert({img: '05o-t2' ,type: 2, condition: '05o', correct_answer: 'M'});
+		Tests.insert({img: '06f-t2' ,type: 2, condition: '06f', correct_answer: 'H'});
+		Tests.insert({img: '06o-t2' ,type: 2, condition: '06o', correct_answer: 'H'});
+		Tests.insert({img: '07f-t2' ,type: 2, condition: '07f', correct_answer: 'I'});
+		Tests.insert({img: '07o-t2' ,type: 2, condition: '07o', correct_answer: 'I'});
+		Tests.insert({img: '08f-t2' ,type: 2, condition: '08f', correct_answer: 'A'});
+		Tests.insert({img: '08o-t2' ,type: 2, condition: '08o', correct_answer: 'A'});
 		console.log('tests created');
 	});
 	
