@@ -112,20 +112,9 @@ if (Meteor.isClient) {
 
 	Template.home.events({
 
-		'click #button-accept' : function() {
+		'submit #add-user' : function() {
 			var age = document.getElementById('age').value;
-			if(age){
-				
-				if(!isNaN(age)){
-
-					age = parseInt(age);
-				}else{
-					Session.set('wrong_input', true);
-				}
-			}else{
-				Session.set('wrong_input', true);
-				return;
-			}
+			age = parseInt(age);
 
 			var gender = document.getElementById('gender');
 			var gender = gender.options[gender.selectedIndex].value;

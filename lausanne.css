@@ -96,8 +96,12 @@ h2 small{
 	border-radius: 5px;
 	padding: 15px;
 	position: relative;
-	cursor: pointer;
 	opacity: 0.92;
+	
+	border: none !important;
+	box-sizing: initial !important;
+	margin: 0 !important;
+
 	-webkit-transition: all 0.2s;
 	-moz-transition: all 0.2s;
 	-ms-transition: all 0.2s;

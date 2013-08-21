@@ -13,61 +13,56 @@
 				<h2>Stars2</h2>
 			</div>
 		</div>
-		<div class="row-fluid stage">
-			<div class="span12 height create-user bg-gray">
-				<!-- <a href="#" id="create" class="full"></a> -->
-				<div class="row-fluid">
-					<div class="span12">
-						<span>Olá! Antes de começarmos precisamos de algumas informações suas!</span>
+		<form action="javascript:void(0);" id="add-user" style="margin: 0">
+			<div class="row-fluid stage">
+				<div class="span12 height create-user bg-gray">
+					<!-- <a href="#" id="create" class="full"></a> -->
+					<div class="row-fluid">
+						<div class="span12">
+							<span>Olá! Antes de começarmos precisamos de algumas informações suas!</span>
+						</div>
 					</div>
-				</div>
-				<div class="row-fluid form-user">
-					<div class="span12">
-						
-						<input type="text" id="age" placeholder="Idade" class="enter-input" maxlength="2">
-						<select id="gender">
-							<option value="" selected>Sexo</option>
-							<option value="M">Masculino</option>
-							<option value="F">Feminino</option>
-						</select>
-						<select id="handwriting">
-							<option value="" selected>Mão de escrita</option>
-							<option value="destro">Destro</option>
-							<option value="canhoto">Canhoto</option>
-							<option value="ambidestro">Ambidestro</option>
-						</select>
-						{{#if wrong_input }}
-							<div class="alert alert-error">
-								<button type="button" class="close" data-dismiss="alert">&times;</button>
-								Preencha todos os campos <strong>corretamente</strong>
-							</div>
-						{{/if}}
+
+					<div class="row-fluid form-user">
+						<div class="span12">
+							
+							<input type="number" id="age" placeholder="Idade" class="enter-input" min="15" max="99" required>
+							<select id="gender" required>
+								<option value="" selected>Sexo</option>
+								<option value="M">Masculino</option>
+								<option value="F">Feminino</option>
+							</select>
+							<select id="handwriting" required>
+								<option value="" selected>Mão de escrita</option>
+								<option value="destro">Destro</option>
+								<option value="canhoto">Canhoto</option>
+								<option value="ambidestro">Ambidestro</option>
+							</select>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="row-fluid">
-			<div class="span12">
-				<div class="termo-concordancia create">
-					<span>Termo de Concordância</span>
-					<div class="spacer-20"></div>
-					
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Doloremque, dolorum, odio necessitatibus quaerat odit aliquam veritatis sint rerum blanditiis eum corporis dicta delectus ea iste cum at ut saepe placeat.</p>
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam, aspernatur, sapiente, explicabo corporis aliquid deserunt temporibus voluptatum enim voluptatibus tempora error commodi ratione est dolorum eaque accusantium earum provident quibusdam. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa, dicta maxime ut itaque atque repudiandae nam enim reiciendis vitae minus ea dolorum corporis quia non illum ratione ipsam quae cupiditate? Lorem ipsum dolor sit amet, consectetur adipisicing elit. Explicabo, inventore sapiente officia consequatur odio quibusdam dolorum ad quos soluta? Incidunt, reprehenderit, beatae quidem inventore et quaerat qui architecto error! Debitis! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptas, ducimus, nostrum, veritatis nesciunt maxime magni quia hic natus odio earum perspiciatis accusantium excepturi? Officiis, dolorum omnis perspiciatis nulla facilis veritatis.</p>
+			<div class="row-fluid">
+				<div class="span12">
+					<div class="termo-concordancia create">
+						<span>Termo de Concordância</span>
+						<div class="spacer-20"></div>
+						
+						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Doloremque, dolorum, odio necessitatibus quaerat odit aliquam veritatis sint rerum blanditiis eum corporis dicta delectus ea iste cum at ut saepe placeat.</p>
+						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam, aspernatur, sapiente, explicabo corporis aliquid deserunt temporibus voluptatum enim voluptatibus tempora error commodi ratione est dolorum eaque accusantium earum provident quibusdam. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa, dicta maxime ut itaque atque repudiandae nam enim reiciendis vitae minus ea dolorum corporis quia non illum ratione ipsam quae cupiditate? Lorem ipsum dolor sit amet, consectetur adipisicing elit. Explicabo, inventore sapiente officia consequatur odio quibusdam dolorum ad quos soluta? Incidunt, reprehenderit, beatae quidem inventore et quaerat qui architecto error! Debitis! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptas, ducimus, nostrum, veritatis nesciunt maxime magni quia hic natus odio earum perspiciatis accusantium excepturi? Officiis, dolorum omnis perspiciatis nulla facilis veritatis.</p>
 
-					<div class="spacer-20"></div>
-					<div class="row-fluid">
-						<div class="span12">
-							<div class="button-accept">
-								<a id="button-accept" href="#" class="full"></a>
-								<span><b>Iniciar Experimento!</b> <br><small style="color: #8D8D8D">Clicando neste botão declaro que li e aceito o Termo de Concordância.</small></span>
+						<div class="spacer-20"></div>
+						<div class="row-fluid">
+							<div class="span12">
+								<button class="button-accept">
+									<span><b>Iniciar Experimento!</b> <br><small style="color: #8D8D8D">Clicando neste botão declaro que li e aceito o Termo de Concordância.</small></span>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-		
+		</form>
 			
 	</div>
 </template>
@@ -119,7 +114,7 @@
 							<button type="submit" class="div-button enter">
 							
 								<span>Entrar com o número do <b> experimento</b>!</span>
-							</div>
+							</button>
 						</div>
 					</div>
 				</form>
