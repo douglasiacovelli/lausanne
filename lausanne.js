@@ -122,12 +122,6 @@ if (Meteor.isClient) {
 			var handwriting = document.getElementById('handwriting');
 			var handwriting = handwriting.options[handwriting.selectedIndex].value;
 
-			if(gender == '' || handwriting == ''){
-				Session.set('wrong_input', true);
-				console.log('vazio');
-				return;
-			}
-
 			var user_id = Usuarios.insert({ age: age, gender: gender, handwriting: handwriting , created: Date.now()});
 			Session.set('user_id', user_id);
 
