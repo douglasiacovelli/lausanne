@@ -206,73 +206,30 @@ if (Meteor.isClient) {
 			var exp_id = document.getElementById('enter-input').value;
 			if(exp_id){
 				
-				// verifica se valor entrado é um número: 'isNaN' - retorna true se não for número
-				// SE FOR UM NÚMERO:
-					// Faz a conversão do input para número e redireciona a pessoa para a página do experimento
-					// wrong_input serve para o template saber se deve adicionar ou não a msg de erro (experimento inválido)
-					// Deve-se verificar se o experimento existe e é válido. Se for, ok.
+				// Faz a conversão do input para número e redireciona a pessoa para a página do experimento
+				// wrong_input serve para o template saber se deve adicionar ou não a msg de erro (experimento inválido)
 				
-				// SE NÃO FOR:
-					//wrong_input é true e então é exibida a msg de erro no template
-				if(!isNaN(exp_id)){
+				// To-Do: Deve-se verificar se o experimento existe e é válido. Se for, ok.
 
-					exp_id = parseInt(exp_id);
-					
-					var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: 1}}); //Pega a primeira session criada
+				exp_id = parseInt(exp_id);
+				
+				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: 1}}); //Pega a primeira session criada
 
-					Sessions.update(session._id, {$set: {hearer_id:  Session.get('user_id')}});
+				Sessions.update(session._id, {$set: {hearer_id:  Session.get('user_id')}});
 
-					Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'hearer'});
-					Session.set('wrong_input', false);
+				Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'hearer'});
+				Session.set('wrong_input', false);
 
-					var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
-					Session.set('session_id', session._id);
-					console.log(session+'QAQUI');
+				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
+				Session.set('session_id', session._id);
+				
 
-				}else{
-					Session.set('wrong_input', true);
-				}
+				
 				// TO-DO: verificar se experimento existe no banco e se está ativo
 			}
 			Session.set('wrong_input', true);
 			
-		},
-
-		'click #enter_btn' : function() {
-			var exp_id = document.getElementById('enter-input').value;
-			if(exp_id){
-				
-				// verifica se valor entrado é um número: 'isNaN' - retorna true se não for número
-				// SE FOR UM NÚMERO:
-					// Faz a conversão do input para número e redireciona a pessoa para a página do experimento
-					// wrong_input serve para o template saber se deve adicionar ou não a msg de erro (experimento inválido)
-					// Deve-se verificar se o experimento existe e é válido. Se for, ok.
-				
-				// SE NÃO FOR:
-					//wrong_input é true e então é exibida a msg de erro no template
-				if(!isNaN(exp_id)){
-
-					exp_id = parseInt(exp_id);
-					
-					var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: 1}}); //Pega a primeira session criada
-
-					Sessions.update(session._id, {$set: {hearer_id:  Session.get('user_id')}});
-
-					Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'hearer'});
-					Session.set('wrong_input', false);
-
-					var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
-					Session.set('session_id', session._id);
-					console.log(session+'QAQUI');
-
-				}else{
-					Session.set('wrong_input', true);
-				}
-				// TO-DO: verificar se experimento existe no banco e se está ativo
-			}
-			Session.set('wrong_input', true);
-			
-		}
+		 }
 	});
 	
 
