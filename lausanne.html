@@ -159,7 +159,7 @@
 				<div class="row-fluid">
 					<div class="span10">
 					
-						<input type="text" id="message" placeholder="" class="input-98">
+						<input type="text" id="message" placeholder="" class="input-98" required>
 					</div>
 					<div class="span2">
 						<button type="submit" class="btn btn-success submit">Enviar</button>
@@ -192,13 +192,8 @@
 			<form action="javascript:void(0);" id="submitAnswer" style="margin: 0">
 			<div class="row-fluid">
 				<div class="span10">
-				{{#if wrong_input }}
-					<div class="alert alert-error">
-						<button type="button" class="close" data-dismiss="alert">&times;</button>
-						Escolha uma letra <strong>válida</strong>
-					</div>
-				{{/if}}
-					<select name="letters" id="answer_select" class="input-98">
+				
+					<select name="letters" id="answer_select" class="input-98" required>
 						<option value="" selected>Selecione a letra</option>
 						<option value="A">A</option>
 						<option value="H">H</option>

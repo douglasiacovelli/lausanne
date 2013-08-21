@@ -232,13 +232,6 @@ if (Meteor.isClient) {
 			var answer = document.getElementById('answer_select');
 			var answer = answer.options[answer.selectedIndex].value;
 
-			if(answer == ''){
-				Session.set('wrong_input', true);
-				console.log('vazio');
-				return;
-			}
-			Session.set('wrong_input', false);
-
 			var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
 			var problem = Problems.findOne(Session.get('problem_id'));
 
