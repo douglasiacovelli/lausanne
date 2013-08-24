@@ -258,78 +258,75 @@ if (Meteor.isClient) {
 			
 			var answer = Answers.insert({ session_id: Session.get('session_id'), description: description.message, answer: answer, isCorrect: isCorrect, created: Date.now()/1000 });
 			//Verificar se resposta dada foi correta
-
-			
-
 		}
 	});
+	
+	Template.hearer.waiting = function(){
+		return amIwaiting('hearer', Session.get('session_id'));
+	}
 
 	Template.speaker.waiting = function(){
-		var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
-		var answer = Answers.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
-		
-		if(description && !answer){
-			return true;
-		}else{
-			if(!description){
-				return false;
-			}
-
-			if(answer.created > description.created){
-				return false;
-			}else{
-				return true;
-			}
-			return false;
-		}
-	};
-
-	Template.hearer.waiting = function(){
-		var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
-		var answer = Answers.findOne({session_id: Session.get('session_id')},  {sort: {created: -1}});
-		
-		if(description && !answer){
-			return false;
-		}else{
-			if(!description){
-				return true;
-			}
-
-			if(answer.created > description.created){
-				return true;
-			}else{
-				return false;
-			}
-			
-		}
-	};
+		return amIwaiting('speaker', Session.get('session_id'));
+	}
 
 	Template.speaker.problem = function(){
-		var session = Sessions.findOne({exp_id: Session.get('exp_id')},{sort: {created: -1}}); //Pega a última sessão do experimento atual
-		if(session){
-			var problem = Problems.findOne({session_id: session._id, isActive: true}, {sort: {created: 1}});
-			Session.set('problem_id', problem._id)
-			
-			return problem;
-		}else{
-			return null;
-		}
+		return actualProblem(Session.get('session_id'));
 	};
 
 	Template.hearer.problem = function(){
-		var session = Sessions.findOne({exp_id: Session.get('exp_id')},{sort: {created: -1}}); //Pega a última sessão do experimento atual
-		if(session){
-			var problem = Problems.findOne({session_id: session._id, isActive: true});
-			Session.set('problem_id', problem._id)
-
-			return problem;
-		}else{
-			return null;
-		}
+		return actualProblem(Session.get('session_id'));
 	};
 
 
-	Session.setDefault('currentRoomId', null);
+	function amIwaiting(user,session_id){
+		var description = Descriptions.findOne({session_id: session_id}, {sort: {created: -1}});
+		var answer = Answers.findOne({session_id: session_id},  {sort: {created: -1}});
+		console.log(user);
+
+        if(user == 'hearer'){
+
+			if(description && !answer){
+				return false;
+			}else{
+				if(!description){
+					return true;
+				}
+
+				if(answer.created > description.created){
+					return true;
+				}else{
+					return false;
+				}
+			}
+			
+        }else{
+        	if(description && !answer){
+				return true;
+			}else{
+				if(!description){
+					return false;
+				}
+
+				if(answer.created > description.created){
+					return false;
+				}else{
+					return true;
+				}
+				return false;
+			}
+        }
+    };
+
+
+    function actualProblem(session_id){
+    	var problem = Problems.findOne({session_id: session_id, isActive: true});
+		console.log(session_id);
+    	console.log(problem);
+		Session.set('problem_id', problem._id);
+
+		return problem;
+    }
+
 
 }
 
@@ -370,6 +367,48 @@ if (Meteor.isServer) {
 		Tests.insert({img: '08o-t2' ,type: 2, condition: '08o', correct_answer: 'A'});
 		console.log('tests created');
 	});
+	
+	Meteor.methods({
+
+        waiting: function (user, session_id) {
+            var description = Descriptions.findOne({session_id: session_id}, {sort: {created: -1}});
+			var answer = Answers.findOne({session_id: session_id},  {sort: {created: -1}});
+
+            if(user == 'hearer'){
+
+				if(description && !answer){
+					return false;
+				}else{
+					if(!description){
+						return true;
+					}
+
+					if(answer.created > description.created){
+						return true;
+					}else{
+						return false;
+					}
+					
+				}
+				
+            }else{
+            	if(description && !answer){
+					return true;
+				}else{
+					if(!description){
+						return false;
+					}
+
+					if(answer.created > description.created){
+						return false;
+					}else{
+						return true;
+					}
+					return false;
+				}
+            }
+        }
+    });
 	
 }
 
