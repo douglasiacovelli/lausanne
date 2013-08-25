@@ -251,7 +251,6 @@ if (Meteor.isClient) {
 			var test = Tests.findOne({img: img});
 			console.log(test);
 
-
 			var isCorrect = false;
 
 			if(test.correct_answer == answer){
@@ -335,6 +334,11 @@ if (Meteor.isClient) {
 		return problem;
     }
 
+	//Declarando os arrays que serão utilizados para selecionar as imagens
+	var conditions = ['01f', '01o', '02f', '02o', '03f', '03o', '04f', '04o', '05f', '05o', '06f', '06o', '07f', '07o', '08f', '08o'];
+	var types = ['1','1','1','1','1','1','1','1','2','2','2','2','2','2','2','2'];
+	var flipped = ['0','0','0','0','0','0','0','0','1','1','1','1','1','1','1','1'];
+
     function prepareSessionProblems(exp_id, conditions, types, flipped){
     	var conditions = shuffleArray(conditions);
 		var types = shuffleArray(types);
@@ -352,11 +356,6 @@ if (Meteor.isClient) {
     	var rand = alpha[Math.floor(Math.random() * alpha.length)];
     	return rand;
     }
-
-    //Declarando os arrays que serão utilizados para selecionar as imagens
-	var conditions = ['01f', '01o', '02f', '02o', '03f', '03o', '04f', '04o', '05f', '05o', '06f', '06o', '07f', '07o', '08f', '08o'];
-	var types = ['1','1','1','1','1','1','1','1','2','2','2','2','2','2','2','2'];
-	var flipped = ['0','0','0','0','0','0','0','0','1','1','1','1','1','1','1','1'];
 
 	/**
 	 * Randomize array element order in-place.
@@ -413,47 +412,6 @@ if (Meteor.isServer) {
 		console.log('tests created');
 	});
 	
-	Meteor.methods({
-
-        waiting: function (user, session_id) {
-            var description = Descriptions.findOne({session_id: session_id}, {sort: {created: -1}});
-			var answer = Answers.findOne({session_id: session_id},  {sort: {created: -1}});
-
-            if(user == 'hearer'){
-
-				if(description && !answer){
-					return false;
-				}else{
-					if(!description){
-						return true;
-					}
-
-					if(answer.created > description.created){
-						return true;
-					}else{
-						return false;
-					}
-					
-				}
-				
-            }else{
-            	if(description && !answer){
-					return true;
-				}else{
-					if(!description){
-						return false;
-					}
-
-					if(answer.created > description.created){
-						return false;
-					}else{
-						return true;
-					}
-					return false;
-				}
-            }
-        }
-    });
 	
 }
 
