@@ -48,6 +48,10 @@ Router.map(function() {
 		action: 'user_type'
 
 	});
+
+	this.route('ending', {
+		path: '/ending'
+	});
 });
 
 ApplicationController = RouteController.extend({
@@ -277,11 +281,63 @@ if (Meteor.isClient) {
 	}
 
 	Template.speaker.problem = function(){
-		return actualProblem(Session.get('session_id'));
+		var problem = actualProblem(Session.get('session_id'));
+		if(problem){
+			return problem;
+		}else{
+			/**
+			 * Verificar se pode ser criada mais uma sessão. Se puder, cria e muda os papeis.
+			 * Caso não possa, redirecione para o fim do experimento.
+			 */
+			
+			var session = Sessions.findOne({exp_id: Session.get('exp_id'), id: 2});
+			if(!session){
+				var new_session = Sessions.insert({exp_id: Session.get('exp_id'), id: 2, created: Date.now()/1000, speaker_id: null, hearer_id: Session.get('user_id'), experiment_finished: false });
+				
+				Session.set('session_id', new_session);
+
+				prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
+
+				Router.go('experiment', {user_id: Session.get('user_id'), id: Session.get('exp_id'), user_type: 'hearer'});
+
+			}else{
+				
+				Router.go('ending');
+			}
+
+		}
 	};
 
 	Template.hearer.problem = function(){
-		return actualProblem(Session.get('session_id'));
+		var problem = actualProblem(Session.get('session_id'));
+		if(problem){
+			return problem;
+		}else{
+			/**
+			 * Verifica se ja existe a segunda sessao. Caso exista,
+			 * ele deve verificar se já foi preenchido o speaker_id,
+			 * isto indica se ja foi iniciada a segunda sessao.
+			 *
+			 * Se existir speaker_id, então eh a primeira vez que a funcao
+			 * esta passando e setando a variavel Session.set(session_id).
+			 * Caso contrario, entao pode-se dizer que chgou ao fim do experimento
+			 */
+			
+			var session = Sessions.findOne({exp_id: Session.get('exp_id'), id: 2});
+			if(session){
+
+				if(session.speaker_id == null){
+					Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
+					Session.set('session_id', session._id);
+
+					Router.go('experiment', {user_id: Session.get('user_id'), id: Session.get('exp_id'), user_type: 'speaker'});
+
+				}else{
+					Router.go('ending');
+				};
+			}
+
+		}
 	};
 
 
@@ -326,10 +382,13 @@ if (Meteor.isClient) {
 
 
     function actualProblem(session_id){
-    	var problem = Problems.findOne({session_id: session_id, isActive: true});
-		console.log(session_id);
-    	console.log(problem);
-		Session.set('problem_id', problem._id);
+    	var problem = Problems.findOne({session_id: session_id, isActive: true}, {sort: {created: 1}});
+		if(problem){
+			Session.set('problem_id', problem._id);	
+		}else{
+			return null;
+		}
+		
 
 		return problem;
     }
