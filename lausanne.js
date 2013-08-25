@@ -7,34 +7,30 @@ Answers = new Meteor.Collection('answers');
 Descriptions = new Meteor.Collection('descriptions');
 
 
-//Declarando os arrays que serão utilizados para selecionar as imagens
-var conditions = ['01f', '01o', '02f', '02o', '03f', '03o', '04f', '04o', '05f', '05o', '06f', '06o', '07f', '07o', '08f', '08o'];
-var types = ['1','1','1','1','1','1','1','1','2','2','2','2','2','2','2','2'];
-var flipped = ['0','0','0','0','0','0','0','0','1','1','1','1','1','1','1','1'];
 
-/**
- * Randomize array element order in-place.
- * Using Fisher-Yates shuffle algorithm.
- */
-function shuffleArray(array) {
-    for (var i = array.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-    return array;
-}
 
 Router.map(function() { 
+	
+	/**
+	 * Routing para a 1a pagina, onde eh realizado o cadastro
+	 * do usuário
+	 */
+	
 	this.route('home', {
 		path: '/'
 	});
 
+	/**
+	 * Routing para a 2a pagina - Posterior ao cadastro.
+	 */
+	
 	this.route('start', {
 		path: '/:user_id/start'
 	});
 
+	/**
+	 * Routing para as pagina em que são exibidos todos os experimentos criados
+	 */
 	this.route('experiments', {
 		path: '/experiments',
 		data: function () {
@@ -42,6 +38,10 @@ Router.map(function() {
 		}
 	});
 
+	/**
+	 * Routing para as paginas de experimento de fato
+	 */
+	
 	this.route('experiment', {
 		path: '/experiment/:user_id/:id/:user_type',
 		controller: 'ExperimentController',
@@ -59,26 +59,33 @@ ApplicationController = RouteController.extend({
 ExperimentController = ApplicationController.extend({
 	data: function(){
 
-		var exp_id = parseInt(this.params.id);
+		var exp_id = this.params.id;
 
 		Session.set('exp_id', exp_id);
+		
 
 		var result_experiments = Experiments.findOne({id: exp_id});
 
 		var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
 
-		return {'experiment': result_experiments,
-				'description': description};
+		return {
+			'experiment': result_experiments,
+			'description': description
+		};
 	},
 
+	/**
+	 * Isto eh uma action e ela eh chamada a partir do this.route('experiment').
+	 * Esta action eh responsavel por identificar o tipo do usuário e renderizar
+	 * o template correto para ele.
+	 */
+	
 	user_type: function(){
 		if(this.params.user_type == 'speaker'){
 			this.render('speaker');
 		}else{
 			this.render('hearer');
 		}
-		
-
 	}
 
 });
@@ -90,9 +97,9 @@ if (Meteor.isClient) {
 	    console.log('Started at ' + location.href);
 	});
 
-	Deps.autorun(function(){
-		Meteor.subscribe('userData');
-	});
+	/**
+	 * Declaração das variaveis a serem utilizadas por cada client
+	 */
 
 	Session.setDefault('exp_id', null);
 	Session.setDefault('session_id', null);
@@ -109,6 +116,11 @@ if (Meteor.isClient) {
 			return false;
 		}
 	}
+
+	/**
+	 * Pega os eventos que acontecerem no template home.
+	 * Para este caso apenas o envio do form de novo usuario
+	 */
 
 	Template.home.events({
 
@@ -141,11 +153,14 @@ if (Meteor.isClient) {
 		}
 	}
 
-	/* Este método é executado assim que no template home for clicado
-	 * o botão de id "create". Ele buscará o último registro para que
-	 * seja feita uma implementação do autoincrement no id. Este id
-	 * foi criado para facilitar a comunicação entre os participantes
-	 * do experimento. Além disso, é criado uma nova entrada de experimento.
+	/**
+	 * CRIACAO DO EXPERIMENTO
+	 * 
+	 * Este metodo eh executado assim que no template home for clicado
+	 * o botão de id "create". Ele buscara o último registro para que
+	 * seja feita uma implementacao do autoincrement no id. Este id
+	 * foi criado para facilitar a comunicacao entre os participantes
+	 * do experimento. Alem disso, eh criada uma nova entrada de experimento.
 	 */
 
 	Template.start.events({
@@ -153,33 +168,26 @@ if (Meteor.isClient) {
 		'click #create' : function() {
 			var exp_id = Experiments.findOne({}, {sort: {created: -1}});
 			
+			var letter1 = randomLetter();
+			var letter2 = randomLetter();
+
 			if(exp_id){
-				exp_id = exp_id.id;
-				exp_id++;	
+				exp_id = exp_id.id.charAt(1);
+				exp_id++;
+				exp_id = letter1+exp_id+letter2;
+				console.log(exp_id);
 			}else{
-				exp_id = 1;
+				exp_id = letter1+1+letter2;
 			}
 
+
 			Experiments.insert({ id: exp_id, created: Date.now()/1000});
-			var session = Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
 			
+			// Criacao da Session e set da variavel Session('session_id')
+			var session = Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
 			Session.set('session_id', session);
 
-			conditions = shuffleArray(conditions);
-			types = shuffleArray(types);
-			flipped = shuffleArray(flipped);
-
-			for (var i = 0; i < 16; i++) {
-				var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
-				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
-				Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});
-			};
-			
-			console.log(conditions);
-			console.log(types);
-			console.log(flipped);
-			
-			
+			prepareSessionProblems(exp_id, conditions, types, flipped);
 			
 			Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'speaker'});
 			
@@ -194,7 +202,7 @@ if (Meteor.isClient) {
 				
 				// To-Do: Deve-se verificar se o experimento existe e é válido. Se for, ok.
 
-				exp_id = parseInt(exp_id);
+				exp_id = exp_id;
 				
 				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: 1}}); //Pega a primeira session criada
 
@@ -326,6 +334,43 @@ if (Meteor.isClient) {
 
 		return problem;
     }
+
+    function prepareSessionProblems(exp_id, conditions, types, flipped){
+    	var conditions = shuffleArray(conditions);
+		var types = shuffleArray(types);
+		var flipped = shuffleArray(flipped);
+
+		for (var i = 0; i < 16; i++) {
+			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
+			var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
+			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});
+		};
+    }
+
+    function randomLetter(){
+    	var alpha = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','U','V','W','X','Y','Z'];
+    	var rand = alpha[Math.floor(Math.random() * alpha.length)];
+    	return rand;
+    }
+
+    //Declarando os arrays que serão utilizados para selecionar as imagens
+	var conditions = ['01f', '01o', '02f', '02o', '03f', '03o', '04f', '04o', '05f', '05o', '06f', '06o', '07f', '07o', '08f', '08o'];
+	var types = ['1','1','1','1','1','1','1','1','2','2','2','2','2','2','2','2'];
+	var flipped = ['0','0','0','0','0','0','0','0','1','1','1','1','1','1','1','1'];
+
+	/**
+	 * Randomize array element order in-place.
+	 * Using Fisher-Yates shuffle algorithm.
+	 */
+	function shuffleArray(array) {
+	    for (var i = array.length - 1; i > 0; i--) {
+	        var j = Math.floor(Math.random() * (i + 1));
+	        var temp = array[i];
+	        array[i] = array[j];
+	        array[j] = temp;
+	    }
+	    return array;
+	}
 
 
 }
