@@ -121,6 +121,14 @@ if (Meteor.isClient) {
 		}
 	}
 
+	Template.hearer.wrong_input = function(){
+		if(Session.get('wrong_input') == true){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
 	/**
 	 * Pega os eventos que acontecerem no template home.
 	 * Para este caso apenas o envio do form de novo usuario
@@ -241,9 +249,17 @@ if (Meteor.isClient) {
 
 	Template.hearer.events({
 		'submit #submitAnswer' : function() {
-			var answer = document.getElementById('answer_select');
-			var answer = answer.options[answer.selectedIndex].value;
-
+			$('button[name="rating"].active').val();
+			var answer = document.getElementById('answer').getElementsByClassName('active');
+			if(answer[0]){
+				answer = answer[0].innerHTML;
+				Session.set('wrong_input', false);
+			}else{
+				console.log('invalido');
+				Session.set('wrong_input', true);
+				return false;
+			}
+			
 			var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
 			var problem = Problems.findOne(Session.get('problem_id'));
 

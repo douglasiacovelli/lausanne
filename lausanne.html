@@ -172,7 +172,7 @@
 <template name="hearer">
 	{{#if waiting}}
 		<div class="waiting">
-			<div class="modal"><p>Aguarde enquanto o seu parceiro descreve a cena</p><hr/><img src="/img/loader.gif" alt=""></div>
+			<div class="modal"><p>Aguarde a próxima instrução</p><hr/><img src="/img/loader.gif" alt=""></div>
 		</div>
 	{{/if}}
 	<div class="container-fluid text-center">
@@ -190,15 +190,20 @@
 			<form action="javascript:void(0);" id="submitAnswer" style="margin: 0">
 			<div class="row-fluid">
 				<div class="span10">
-				
-					<select name="letters" id="answer_select" class="input-98" required>
-						<option value="" selected>Selecione a letra</option>
-						<option value="A">A</option>
-						<option value="H">H</option>
-						<option value="I">I</option>
-						<option value="M">M</option>
-						<option value="O">O</option>
-					</select>
+					<div class="btn-group" id="answer" data-toggle="buttons-radio">
+						<button type="button" class="btn">A</button>
+						<button type="button" class="btn">H</button>
+						<button type="button" class="btn">I</button>
+						<button type="button" class="btn">M</button>
+						<button type="button" class="btn">O</button>
+					</div>
+					<div class="spacer-20"></div>
+					{{#if wrong_input }}
+						
+						<div class="alert alert-error">
+							Selecione pelo menos uma letra
+						</div>
+					{{/if}}
 				</div>
 				<div class="span2">
 					<button id="submitAnswer" type="submit" class="btn btn-success submit">Enviar</button>
