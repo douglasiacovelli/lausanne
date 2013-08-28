@@ -5,6 +5,7 @@ Sessions = new Meteor.Collection('sessions');
 Tests = new Meteor.Collection('tests');
 Answers = new Meteor.Collection('answers');
 Descriptions = new Meteor.Collection('descriptions');
+Practices = new Meteor.Collection('practices');
 
 
 
@@ -25,7 +26,7 @@ Router.map(function() {
 	 */
 	
 	this.route('start', {
-		path: '/:user_id/start'
+		path: '/start'
 	});
 
 	/**
@@ -43,7 +44,7 @@ Router.map(function() {
 	 */
 	
 	this.route('experiment', {
-		path: '/experiment/:user_id/:id/:user_type',
+		path: '/experiment/:id/:user_type',
 		controller: 'ExperimentController',
 		action: 'user_type'
 
@@ -150,7 +151,7 @@ if (Meteor.isClient) {
 			Session.set('user_id', user_id);
 
 			Session.set('wrong_input', false);
-			Router.go('start', {user_id: user_id});
+			Router.go('start');
 
 		}
 	});
@@ -199,9 +200,11 @@ if (Meteor.isClient) {
 			var session = Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
 			Session.set('session_id', session);
 
-			prepareSessionProblems(exp_id, conditions, types, flipped);
+			prepareSessionPractices(exp_id, conditions, types, flipped);
 			
-			Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'speaker'});
+			//prepareSessionProblems(exp_id, conditions, types, flipped);
+			
+			Router.go('experiment', {id: exp_id, user_type: 'speaker'});
 			
 		},
 
@@ -306,20 +309,33 @@ if (Meteor.isClient) {
 			 * Caso não possa, redirecione para o fim do experimento.
 			 */
 			
-			var session = Sessions.findOne({exp_id: Session.get('exp_id'), id: 2});
-			if(!session){
-				var new_session = Sessions.insert({exp_id: Session.get('exp_id'), id: 2, created: Date.now()/1000, speaker_id: null, hearer_id: Session.get('user_id'), experiment_finished: false });
-				
-				Session.set('session_id', new_session);
-
-				prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
-
-				Router.go('experiment', {user_id: Session.get('user_id'), id: Session.get('exp_id'), user_type: 'hearer'});
-
-			}else{
-				
+			var session = Sessions.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
+			if(session.id == 4){
 				Router.go('ending');
+				return;
 			}
+			var new_id = session.id + 1;
+			var new_session = Sessions.insert({exp_id: Session.get('exp_id'), id: new_id, created: Date.now()/1000, speaker_id: null, hearer_id: Session.get('user_id'), experiment_finished: false });
+			Session.set('session_id', new_session);
+
+			if(session.id == 1){ //Acabou a sessão 1 (prática). Começa a segunda sessão (prática)
+				prepareSessionPractices(Session.get('exp_id'), conditions, types, flipped);
+				Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
+			}else{
+				if(session.id == 2){//Acabou a sessão 2 (prática). Começa a terceira (experimento real)
+					prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
+					//Router.go('Not a practice anymore!'});
+					//Terá um botão neste novo template que terá um Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
+					//return				
+				
+				}else{
+					if(session.id == 3){ 
+						prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
+						Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
+					}
+				}
+			}
+			
 
 		}
 	};
@@ -339,6 +355,31 @@ if (Meteor.isClient) {
 			 * Caso contrario, entao pode-se dizer que chgou ao fim do experimento
 			 */
 			
+			var session = Sessions.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
+			Session.set('session_id', session._id);
+			if(session.id == 4){
+				Router.go('ending');
+				return;
+			}
+			if(session.id == 1 || session.id == 3){ //Acabou a sessão 1 (prática). Começa a segunda sessão (prática)
+				if(session.speaker_id == null){
+					Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
+					Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
+				}
+			}else{
+				if(session.id == 2){//Acabou a sessão 2 (prática). Começa a terceira (experimento real)
+					prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
+					//Router.go('Not a practice anymore!'});
+					//Terá um botão neste novo template que terá um Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
+					//return				
+					
+				}
+			}
+			
+			
+
+
+
 			var session = Sessions.findOne({exp_id: Session.get('exp_id'), id: 2});
 			if(session){
 
@@ -414,12 +455,27 @@ if (Meteor.isClient) {
 	var types = ['1','1','1','1','1','1','1','1','2','2','2','2','2','2','2','2'];
 	var flipped = ['0','0','0','0','0','0','0','0','1','1','1','1','1','1','1','1'];
 
+	/**
+	 * Encontra a última sessão, dado o experimento e então cria os 16 problemas para a mesma.
+	 */
     function prepareSessionProblems(exp_id, conditions, types, flipped){
     	var conditions = shuffleArray(conditions);
 		var types = shuffleArray(types);
 		var flipped = shuffleArray(flipped);
 
 		for (var i = 0; i < 16; i++) {
+			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
+			var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
+			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});
+		};
+    }
+    //To-Do: perguntar pro Ivandre sobre setar resposta errada e ela voltar
+    function prepareSessionPractices(exp_id, conditions, types, flipped){
+    	var conditions = shuffleArray(conditions);
+		var types = shuffleArray(types);
+		var flipped = shuffleArray(flipped);
+
+		for (var i = 0; i < 4; i++) {
 			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
 			var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
 			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});
@@ -484,7 +540,8 @@ if (Meteor.isServer) {
 		Tests.insert({img: '07o-t2' ,type: 2, condition: '07o', correct_answer: 'I'});
 		Tests.insert({img: '08f-t2' ,type: 2, condition: '08f', correct_answer: 'A'});
 		Tests.insert({img: '08o-t2' ,type: 2, condition: '08o', correct_answer: 'A'});
-		console.log('tests created');
+
+		console.log('tests and problems created');
 	});
 	
 	
