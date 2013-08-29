@@ -53,6 +53,12 @@ Router.map(function() {
 	this.route('ending', {
 		path: '/ending'
 	});
+
+	this.route('start_experiment', {
+		path: '/start_experiment/:user_type',
+		data: function() { return this.params.user_type; }
+	});
+	
 });
 
 ApplicationController = RouteController.extend({
@@ -166,6 +172,15 @@ if (Meteor.isClient) {
 		}
 	}
 
+	Template.start_experiment.events({
+
+		'click #start_experiment' : function() {
+			
+			var user_type = this+'';
+			Router.go('experiment', {id: Session.get('exp_id'), user_type: user_type});
+		}
+	});
+
 	/**
 	 * CRIACAO DO EXPERIMENTO
 	 * 
@@ -232,8 +247,10 @@ if (Meteor.isClient) {
 
 				
 				// TO-DO: verificar se experimento existe no banco e se está ativo
+			}else{
+				Session.set('wrong_input', true);	
 			}
-			Session.set('wrong_input', true);
+			
 			
 		 }
 	});
@@ -308,30 +325,45 @@ if (Meteor.isClient) {
 			 * Verificar se pode ser criada mais uma sessão. Se puder, cria e muda os papeis.
 			 * Caso não possa, redirecione para o fim do experimento.
 			 */
-			
+			console.log("CHEGA DE PROBLEMA, PORRA! brincadeira. Acabou!");
+
 			var session = Sessions.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
 			if(session.id == 4){
 				Router.go('ending');
 				return;
 			}
 			var new_id = session.id + 1;
-			var new_session = Sessions.insert({exp_id: Session.get('exp_id'), id: new_id, created: Date.now()/1000, speaker_id: null, hearer_id: Session.get('user_id'), experiment_finished: false });
-			Session.set('session_id', new_session);
+			
 
 			if(session.id == 1){ //Acabou a sessão 1 (prática). Começa a segunda sessão (prática)
+				var new_session = Sessions.insert({exp_id: Session.get('exp_id'), id: new_id, created: Date.now()/1000, speaker_id: null, hearer_id: Session.get('user_id'), experiment_finished: false });
+				Session.set('session_id', new_session);
+
 				prepareSessionPractices(Session.get('exp_id'), conditions, types, flipped);
 				Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
+				console.log("PREPARANDO a próxima prática!");
+
+				
+
 			}else{
 				if(session.id == 2){//Acabou a sessão 2 (prática). Começa a terceira (experimento real)
+					var new_session = Sessions.insert({exp_id: Session.get('exp_id'), id: new_id, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null, experiment_finished: false });
+					Session.set('session_id', new_session);
+
 					prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
-					//Router.go('Not a practice anymore!'});
-					//Terá um botão neste novo template que terá um Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
-					//return				
+					Router.go('start_experiment', {user_type: 'hearer'});
+
+					console.log("speaker: id 2");
 				
 				}else{
-					if(session.id == 3){ 
+					if(session.id == 3){
+						var new_session = Sessions.insert({exp_id: Session.get('exp_id'), id: new_id, created: Date.now()/1000, speaker_id: null, hearer_id: Session.get('user_id'), experiment_finished: false });
+						Session.set('session_id', new_session);
+
 						prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
 						Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
+
+						console.log("speaker: id 3");
 					}
 				}
 			}
@@ -346,54 +378,46 @@ if (Meteor.isClient) {
 			return problem;
 		}else{
 			/**
-			 * Verifica se ja existe a segunda sessao. Caso exista,
-			 * ele deve verificar se já foi preenchido o speaker_id,
-			 * isto indica se ja foi iniciada a segunda sessao.
-			 *
-			 * Se existir speaker_id, então eh a primeira vez que a funcao
-			 * esta passando e setando a variavel Session.set(session_id).
-			 * Caso contrario, entao pode-se dizer que chgou ao fim do experimento
+			 * Algoritmo diferente do problem pra speaker, pq o speaker criará a sessão nova
+			 * O hearer quando der a busca no banco, descobrirá a nova já criada.
 			 */
 			
 			var session = Sessions.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
 			Session.set('session_id', session._id);
-			if(session.id == 4){
-				Router.go('ending');
-				return;
-			}
-			if(session.id == 1 || session.id == 3){ //Acabou a sessão 1 (prática). Começa a segunda sessão (prática)
-				if(session.speaker_id == null){
-					Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
+
+			
+			if(session.speaker_id == null || session.hearer_id == null){
+				if(session.id == 2){ //Começou a sessão 2
 					Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
-				}
-			}else{
-				if(session.id == 2){//Acabou a sessão 2 (prática). Começa a terceira (experimento real)
-					prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
-					//Router.go('Not a practice anymore!'});
-					//Terá um botão neste novo template que terá um Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
-					//return				
-					
-				}
-			}
-			
-			
-
-
-
-			var session = Sessions.findOne({exp_id: Session.get('exp_id'), id: 2});
-			if(session){
-
-				if(session.speaker_id == null){
 					Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
-					Session.set('session_id', session._id);
 
-					Router.go('experiment', {user_id: Session.get('user_id'), id: Session.get('exp_id'), user_type: 'speaker'});
+					console.log('hearer: 2');
 
 				}else{
-					Router.go('ending');
-				};
-			}
+					if(session.id == 3){//Começou a sessão 3
+						Router.go('start_experiment', {user_type: 'speaker'});
 
+						Sessions.update(session._id, {$set: {hearer_id:  Session.get('user_id')}});
+
+						console.log('hearer: 3');
+						
+					}else{
+						if(session.id == 4){//Acabou a sessão 2 (prática). Começa a terceira (experimento real)
+							prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
+							Router.go('start_experiment', {user_type: 'speaker'});
+
+							Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
+
+							console.log('hearer: 4');
+						}
+					}
+				}
+			}else{
+				if(session.id == 4){
+					Router.go('ending');
+					return;
+				}
+			}
 		}
 	};
 
