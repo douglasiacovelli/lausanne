@@ -259,11 +259,9 @@ if (Meteor.isClient) {
 	Template.speaker.events({
 		'submit #submitDescription' : function() {
 			messageInput = document.getElementById('message').value;
-			//console.log(this.params);
 			Descriptions.insert({ session_id: Session.get('session_id'), message: messageInput, created: Date.now()/1000 });
 
 			document.getElementById('message').value = '';
-			console.log('input limpo');
 		}
 	});
 
@@ -275,7 +273,6 @@ if (Meteor.isClient) {
 				answer = answer[0].innerHTML;
 				Session.set('wrong_input', false);
 			}else{
-				console.log('invalido');
 				Session.set('wrong_input', true);
 				return false;
 			}
@@ -286,10 +283,8 @@ if (Meteor.isClient) {
 			var img = problem.img;
 
 			img = img.substring(6,12);
-			console.log(img);
 
 			var test = Tests.findOne({img: img});
-			console.log(test);
 
 			var isCorrect = false;
 
@@ -316,6 +311,13 @@ if (Meteor.isClient) {
 		return amIwaiting('speaker', Session.get('session_id'));
 	}
 
+
+	/**
+	 * Esta parte dos problemas está BEM complicada. A parte complexa é que os usuários mudam de papel a cada session.
+	 * Então o usuário que era speaker deve virar um hearer, depois voltar a ser speaker e por fim voltar a ser hearer.
+	 * 
+	 */
+
 	Template.speaker.problem = function(){
 		var problem = actualProblem(Session.get('session_id'));
 		if(problem){
@@ -325,7 +327,6 @@ if (Meteor.isClient) {
 			 * Verificar se pode ser criada mais uma sessão. Se puder, cria e muda os papeis.
 			 * Caso não possa, redirecione para o fim do experimento.
 			 */
-			console.log("CHEGA DE PROBLEMA, PORRA! brincadeira. Acabou!");
 
 			var session = Sessions.findOne({exp_id: Session.get('exp_id')}, {sort: {created: -1}});
 			if(session.id == 4){
@@ -341,9 +342,6 @@ if (Meteor.isClient) {
 
 				prepareSessionPractices(Session.get('exp_id'), conditions, types, flipped);
 				Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
-				console.log("PREPARANDO a próxima prática!");
-
-				
 
 			}else{
 				if(session.id == 2){//Acabou a sessão 2 (prática). Começa a terceira (experimento real)
@@ -352,8 +350,6 @@ if (Meteor.isClient) {
 
 					prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
 					Router.go('start_experiment', {user_type: 'hearer'});
-
-					console.log("speaker: id 2");
 				
 				}else{
 					if(session.id == 3){
@@ -362,8 +358,6 @@ if (Meteor.isClient) {
 
 						prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
 						Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
-
-						console.log("speaker: id 3");
 					}
 				}
 			}
@@ -391,16 +385,12 @@ if (Meteor.isClient) {
 					Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
 					Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
 
-					console.log('hearer: 2');
-
 				}else{
 					if(session.id == 3){//Começou a sessão 3
 						Router.go('start_experiment', {user_type: 'speaker'});
 
 						Sessions.update(session._id, {$set: {hearer_id:  Session.get('user_id')}});
 
-						console.log('hearer: 3');
-						
 					}else{
 						if(session.id == 4){//Acabou a sessão 2 (prática). Começa a terceira (experimento real)
 							prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
@@ -425,7 +415,6 @@ if (Meteor.isClient) {
 	function amIwaiting(user,session_id){
 		var description = Descriptions.findOne({session_id: session_id}, {sort: {created: -1}});
 		var answer = Answers.findOne({session_id: session_id},  {sort: {created: -1}});
-		console.log(user);
 
         if(user == 'hearer'){
 
