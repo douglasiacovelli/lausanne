@@ -28,6 +28,10 @@ Router.map(function() {
 		path: '/:user_id/start'
 	});
 
+	this.route('practice_start', {
+		path: '/:user_id/practice_start'
+	});
+
 	/**
 	 * Routing para as pagina em que são exibidos todos os experimentos criados
 	 */
@@ -43,7 +47,7 @@ Router.map(function() {
 	 */
 	
 	this.route('experiment', {
-		path: '/experiment/:user_id/:id/:user_type',
+		path: '/experiment/:id/:user_type',
 		controller: 'ExperimentController',
 		action: 'user_type'
 
@@ -150,7 +154,7 @@ if (Meteor.isClient) {
 			Session.set('user_id', user_id);
 
 			Session.set('wrong_input', false);
-			Router.go('start', {user_id: user_id});
+			Router.go('practice_start', {user_id: user_id});
 
 		}
 	});
@@ -178,30 +182,7 @@ if (Meteor.isClient) {
 	Template.start.events({
 
 		'click #create' : function() {
-			var exp_id = Experiments.findOne({}, {sort: {created: -1}});
-			
-			var letter1 = randomLetter();
-			var letter2 = randomLetter();
-
-			if(exp_id){
-				exp_id = exp_id.id.charAt(1);
-				exp_id++;
-				exp_id = letter1+exp_id+letter2;
-				console.log(exp_id);
-			}else{
-				exp_id = letter1+1+letter2;
-			}
-
-
-			Experiments.insert({ id: exp_id, created: Date.now()/1000});
-			
-			// Criacao da Session e set da variavel Session('session_id')
-			var session = Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
-			Session.set('session_id', session);
-
-			prepareSessionProblems(exp_id, conditions, types, flipped);
-			
-			Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'speaker'});
+			createExperiment(false);
 			
 		},
 
@@ -220,7 +201,7 @@ if (Meteor.isClient) {
 
 				Sessions.update(session._id, {$set: {hearer_id:  Session.get('user_id')}});
 
-				Router.go('experiment', {user_id: Session.get('user_id'), id: exp_id, user_type: 'hearer'});
+				Router.go('experiment', {id: exp_id, user_type: 'hearer'});
 				Session.set('wrong_input', false);
 
 				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
@@ -237,6 +218,44 @@ if (Meteor.isClient) {
 		 }
 	});
 	
+	Template.practice_start.events({
+
+		'click #create' : function() {
+			createExperiment(true);
+			
+		},
+
+		'submit #enter' : function() {
+			var exp_id = document.getElementById('enter-input').value;
+			if(exp_id){
+				
+				// Faz a conversão do input para número e redireciona a pessoa para a página do experimento
+				// wrong_input serve para o template saber se deve adicionar ou não a msg de erro (experimento inválido)
+				
+				// To-Do: Deve-se verificar se o experimento existe e é válido. Se for, ok.
+
+				exp_id = exp_id;
+				
+				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: 1}}); //Pega a primeira session criada
+
+				Sessions.update(session._id, {$set: {hearer_id:  Session.get('user_id')}});
+
+				Router.go('experiment', {id: exp_id, user_type: 'hearer'});
+				Session.set('wrong_input', false);
+
+				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
+				Session.set('session_id', session._id);
+				
+
+				
+				// TO-DO: verificar se experimento existe no banco e se está ativo
+			}else{
+				Session.set('wrong_input', true);	
+			}
+			
+			
+		 }
+	});
 
 	Template.speaker.events({
 		'submit #submitDescription' : function() {
@@ -314,13 +333,23 @@ if (Meteor.isClient) {
 				
 				Session.set('session_id', new_session);
 
-				prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
+				var exp = Experiments.findOne({id: Session.get('exp_id')});
+				if(exp.isPractice == true){
+					prepareSessionPractices(Session.get('exp_id'), conditions, types, flipped);
+				}else{
+					prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
+				}
 
-				Router.go('experiment', {user_id: Session.get('user_id'), id: Session.get('exp_id'), user_type: 'hearer'});
+				Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
 
 			}else{
+				var exp = Experiments.findOne({id: Session.get('exp_id')});
+				if(exp.isPractice == true){
+					Router.go('start', {user_id: Session.get('user_id')});
+				}else{
+					Router.go('ending');
+				}
 				
-				Router.go('ending');
 			}
 
 		}
@@ -348,10 +377,15 @@ if (Meteor.isClient) {
 					Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
 					Session.set('session_id', session._id);
 
-					Router.go('experiment', {user_id: Session.get('user_id'), id: Session.get('exp_id'), user_type: 'speaker'});
+					Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
 
 				}else{
-					Router.go('ending');
+					var exp = Experiments.findOne({id: Session.get('exp_id')});
+					if(exp.isPractice == true){
+						Router.go('start', {user_id: Session.get('user_id')});
+					}else{
+						Router.go('ending');
+					}
 				};
 			}
 
@@ -417,7 +451,7 @@ if (Meteor.isClient) {
 	var flipped = ['','','','','','','','','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal'];
 
     function prepareSessionProblems(exp_id, conditions, types, flipped){
-    	var conditions = shuffleArray(conditions);
+		var conditions = shuffleArray(conditions);
 		var types = shuffleArray(types);
 		var flipped = shuffleArray(flipped);
 
@@ -426,7 +460,19 @@ if (Meteor.isClient) {
 			var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
 			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});
 		};
-    }
+	}
+
+	function prepareSessionPractices(exp_id, conditions, types, flipped){
+		var conditions = shuffleArray(conditions);
+		var types = shuffleArray(types);
+		var flipped = shuffleArray(flipped);
+
+		for (var i = 0; i < 2; i++) { //CHANGE TO i < 4
+			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
+			var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
+			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});
+		};
+	}
 
     function randomLetter(){
     	var alpha = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','U','V','W','X','Y','Z'];
@@ -446,6 +492,39 @@ if (Meteor.isClient) {
 	        array[j] = temp;
 	    }
 	    return array;
+	}
+
+	function createExperiment(isPractice){
+		var exp_id = Experiments.findOne({}, {sort: {created: -1}});
+		
+		var letter1 = randomLetter();
+		var letter2 = randomLetter();
+
+		if(exp_id){
+			exp_id = exp_id.id.substring(1,exp_id.id.length-1);
+			console.log(exp_id);
+			exp_id++;
+			exp_id = letter1+exp_id+letter2;
+			console.log(exp_id);
+		}else{
+			exp_id = letter1+1+letter2;
+		}
+
+
+		Experiments.insert({ id: exp_id, isPractice: isPractice, created: Date.now()/1000});
+		
+		// Criacao da Session e set da variavel Session('session_id')
+		var session = Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
+		Session.set('session_id', session);
+
+		if(isPractice){
+			prepareSessionPractices(exp_id, conditions, types, flipped);
+		}else{
+			prepareSessionProblems(exp_id, conditions, types, flipped);
+		}
+		
+		Router.go('experiment', {id: exp_id, user_type: 'speaker'});
+		
 	}
 
 
