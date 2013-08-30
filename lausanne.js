@@ -229,8 +229,10 @@ if (Meteor.isClient) {
 
 				
 				// TO-DO: verificar se experimento existe no banco e se está ativo
+			}else{
+				Session.set('wrong_input', true);	
 			}
-			Session.set('wrong_input', true);
+			
 			
 		 }
 	});
@@ -412,7 +414,7 @@ if (Meteor.isClient) {
 	//Declarando os arrays que serão utilizados para selecionar as imagens
 	var conditions = ['01f', '01o', '02f', '02o', '03f', '03o', '04f', '04o', '05f', '05o', '06f', '06o', '07f', '07o', '08f', '08o'];
 	var types = ['1','1','1','1','1','1','1','1','2','2','2','2','2','2','2','2'];
-	var flipped = ['0','0','0','0','0','0','0','0','1','1','1','1','1','1','1','1'];
+	var flipped = ['','','','','','','','','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal'];
 
     function prepareSessionProblems(exp_id, conditions, types, flipped){
     	var conditions = shuffleArray(conditions);
