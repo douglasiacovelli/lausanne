@@ -448,15 +448,14 @@ if (Meteor.isClient) {
 			 * esta passando e setando a variavel Session.set(session_id).
 			 * Caso contrario, entao pode-se dizer que chgou ao fim do experimento
 			 */
-			
 			var session = Sessions.findOne({exp_id: Session.get('exp_id'), id: 2});
 			if(session){
 
 				if(session.speaker_id == null){
-					Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
-					Session.set('session_id', session._id);
 
 					Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
+					Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
+					Session.set('session_id', session._id);
 
 				}else{
 					var exp = Experiments.findOne({id: Session.get('exp_id')});
