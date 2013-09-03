@@ -546,7 +546,7 @@ if (Meteor.isClient) {
 		var types = shuffleArray(types);
 		var flipped = shuffleArray(flipped);
 
-		for (var i = 0; i < 2; i++) { //CHANGE TO i < 4
+		for (var i = 0; i < 4; i++) { //CHANGE TO i < 4
 			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
 			var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
 			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});
