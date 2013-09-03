@@ -169,7 +169,13 @@ ExperimentController = ApplicationController.extend({
 			this.render('speaker');
 		}else{
 			this.render('hearer');
+			
 		}
+
+		if(Session.get('user_type') == null){
+			Session.set('user_type', this.params.user_type);
+		}
+		
 	}
 
 });
@@ -191,7 +197,7 @@ if (Meteor.isClient) {
 	Session.setDefault('wrong_input', false);
 	Session.setDefault('tests_queue', false);
 	Session.setDefault('problem_id', null);
-	
+	Session.setDefault('user_type', null);
 
 	Template.home.wrong_input = function(){
 		if(Session.get('wrong_input') == true){
@@ -422,6 +428,7 @@ if (Meteor.isClient) {
 				Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
 
 			}else{
+
 				var exp = Experiments.findOne({id: Session.get('exp_id')});
 				if(exp.isPractice == true){
 					Router.go('start', {user_id: Session.get('user_id')});
@@ -453,9 +460,14 @@ if (Meteor.isClient) {
 
 				if(session.speaker_id == null){
 
-					Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
+					
 					Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
 					Session.set('session_id', session._id);
+
+					setTimeout(function(){
+						Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
+						console.log('Delay');
+					}, 500);
 
 				}else{
 					var exp = Experiments.findOne({id: Session.get('exp_id')});
