@@ -33,14 +33,59 @@ Router.map(function() {
 	});
 
 	/**
-	 * Routing para as pagina em que são exibidos todos os experimentos criados
+	 * Routing para as pagina em que são exibidos todos os resultados dos experimentos.
 	 */
 	this.route('experiments', {
 		path: '/experiments',
 		data: function () {
-			return {experiments: Experiments.find()}
+			var experiments = Experiments.find().fetch();
+			//console.log(experiments);
+			for (x in experiments){
+				var exp_id = experiments[x].id;
+
+				var sessions = Sessions.find({exp_id: exp_id}).fetch();
+
+				experiments[x].session = new Array(4);
+				for(y in sessions){
+					//console.log('\t'+sessions[y].id);
+
+					var answers = Answers.find({session_id: sessions[y]._id}).fetch();
+					
+					experiments[x].session[y] = answers;
+					
+
+					for(z in answers){
+						experiments[x].session[y][z].exp_id = exp_id;
+						experiments[x].session[y][z].speaker_id = sessions[y].speaker_id;
+						experiments[x].session[y][z].hearer_id = sessions[y].hearer_id;
+
+						var date = new Date();
+						var new_date = dateFormatted(experiments[x].session[y][z].created);
+						experiments[x].session[y][z].created = new_date;
+					}
+
+					console.log(experiments[x].session[y]);
+				}
+
+			};
+
+			return {experiments: experiments}
 		}
 	});
+
+	this.route('users', {
+			path: '/users',
+			data: function () {
+
+				var usuarios = Usuarios.find().fetch();
+
+				for(x in usuarios){
+					usuarios[x].created = dateFormatted(usuarios[x].created);
+				}
+
+				return {usuarios: usuarios}
+			}
+		});
 
 	/**
 	 * Routing para as paginas de experimento de fato
@@ -57,6 +102,37 @@ Router.map(function() {
 		path: '/ending'
 	});
 });
+
+function dateFormatted(timestamp){
+	var date = new Date(timestamp * 1000);
+	var day = date.getDate();
+	var month = date.getMonth();
+	var year = date.getFullYear();
+	var hours = date.getHours();
+	var minutes = date.getMinutes();
+
+	minutes = minutes + '';
+	day = day+'';
+	month = month+'';
+	hours = hours+'';
+
+	if (minutes.length == 1){
+		minutes = '0' + minutes;
+	}
+	if(hours.length == 1){
+		hours = '0' + hours;
+	}
+	if(day.length == 1){
+		day = '0' + day;
+	}
+	if(month.length == 1){
+		month = '0' + month;
+	}
+	year = date.getFullYear()%2000;
+
+	var new_date = day+'-'+month+'-'+year+' - '+hours+':'+minutes;
+	return new_date;
+}
 
 ApplicationController = RouteController.extend({
 	// layout: 'layout',
@@ -150,7 +226,7 @@ if (Meteor.isClient) {
 			var handwriting = document.getElementById('handwriting');
 			var handwriting = handwriting.options[handwriting.selectedIndex].value;
 
-			var user_id = Usuarios.insert({ age: age, gender: gender, handwriting: handwriting , created: Date.now()});
+			var user_id = Usuarios.insert({ age: age, gender: gender, handwriting: handwriting , created: Date.now()/1000});
 			Session.set('user_id', user_id);
 
 			Session.set('wrong_input', false);
@@ -303,8 +379,11 @@ if (Meteor.isClient) {
 				Problems.update(Session.get('problem_id'), {$set: {created: Date.now()/1000}}); //atualiza seu created para que ele fique maior que todos e vá para o fim da fila
 				console.log('Fim da fila problem '+Session.get('problem_id'));
 			}
-			
-			var answer = Answers.insert({ session_id: Session.get('session_id'), description: description.message, answer: answer, isCorrect: isCorrect, created: Date.now()/1000 });
+			var isFlipped = false;
+			if(problem.isFlipped != ''){
+				isFlipped = true;
+			}
+			var answer = Answers.insert({ session_id: Session.get('session_id'), description: description.message, answer: answer, isCorrect: isCorrect, isFlipped: isFlipped, img: problem.img, created: Date.now()/1000 });
 			//Verificar se resposta dada foi correta
 		}
 	});
