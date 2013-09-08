@@ -89,7 +89,17 @@ Router.map(function() {
 						experiments[x].session[y][z].speaker_id = sessions[y].speaker_id;
 						experiments[x].session[y][z].hearer_id = sessions[y].hearer_id;
 
-						var date = new Date();
+						var timeToAnswer = parseInt(experiments[x].session[y][z].timeToAnswer);
+						if(timeToAnswer > 60){
+							var seconds = timeToAnswer % 60;
+							var minutes = parseInt(timeToAnswer / 60);
+							timeToAnswer = minutes+' m '+seconds+' s';
+						}else{
+							timeToAnswer = timeToAnswer + ' s'
+						}
+
+						experiments[x].session[y][z].timeToAnswer = timeToAnswer;
+
 						var new_date = dateFormatted(experiments[x].session[y][z].created);
 						experiments[x].session[y][z].created = new_date;
 						
@@ -429,7 +439,11 @@ if (Meteor.isClient) {
 			if(problem.isFlipped != ''){
 				isFlipped = true;
 			}
-			var answer = Answers.insert({ session_id: Session.get('session_id'), description: description.message, answer: answer, isCorrect: isCorrect, isFlipped: isFlipped, img: problem.img, created: Date.now()/1000 });
+			var description = Descriptions.findOne({ session_id: Session.get('session_id')},{sort: {created: -1}});
+			var now = Date.now()/1000;
+			var timeToAnswer = now - description.created;
+
+			var answer = Answers.insert({ session_id: Session.get('session_id'), description: description.message, answer: answer, isCorrect: isCorrect, isFlipped: isFlipped, img: problem.img, timeToAnswer: timeToAnswer, created: Date.now()/1000 });
 			//Verificar se resposta dada foi correta
 		}
 	});
