@@ -20,16 +20,33 @@ Router.map(function() {
 		path: '/'
 	});
 
+	this.route('error', {
+		path: '/error'
+	});
 	/**
 	 * Routing para a 2a pagina - Posterior ao cadastro.
 	 */
 	
 	this.route('start', {
-		path: '/:user_id/start'
+		path: '/start'
+	}, 
+	function(){
+		if(!Session.get('user_id')){
+			Router.go('error');
+		}else{
+			this.render('start');
+		}
 	});
 
 	this.route('practice_start', {
-		path: '/:user_id/practice_start'
+		path: '/practice_start'
+	}, 
+	function(){
+		if(!Session.get('user_id')){
+			Router.go('error');
+		}else{
+			this.render('practice_start');
+		}
 	});
 
 	/**
@@ -223,6 +240,8 @@ if (Meteor.isClient) {
 	Template.home.events({
 
 		'submit #add-user' : function() {
+			var name = document.getElementById('name').value;
+
 			var age = document.getElementById('age').value;
 			age = parseInt(age);
 
@@ -232,11 +251,21 @@ if (Meteor.isClient) {
 			var handwriting = document.getElementById('handwriting');
 			var handwriting = handwriting.options[handwriting.selectedIndex].value;
 
-			var user_id = Usuarios.insert({ age: age, gender: gender, handwriting: handwriting , created: Date.now()/1000});
+			var user = Usuarios.findOne({}, {sort: {created: -1}});
+			var user_id;
+
+			if(user){
+				user_id = user.id;
+				user_id++;
+			}else{
+				user_id = 1;
+			}
+
+			Usuarios.insert({id: user_id, name: name, age: age, gender: gender, handwriting: handwriting , created: Date.now()/1000});
 			Session.set('user_id', user_id);
 
 			Session.set('wrong_input', false);
-			Router.go('practice_start', {user_id: user_id});
+			Router.go('practice_start');
 
 		}
 	});
@@ -472,7 +501,7 @@ if (Meteor.isClient) {
 				}else{
 					var exp = Experiments.findOne({id: Session.get('exp_id')});
 					if(exp.isPractice == true){
-						Router.go('start', {user_id: Session.get('user_id')});
+						Router.go('start');
 					}else{
 						Router.go('ending');
 					}
@@ -545,7 +574,7 @@ if (Meteor.isClient) {
 		var types = shuffleArray(types);
 		var flipped = shuffleArray(flipped);
 
-		for (var i = 0; i < 16; i++) {
+		for (var i = 0; i < 4; i++) {
 			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
 			var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
 			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});
@@ -557,7 +586,7 @@ if (Meteor.isClient) {
 		var types = shuffleArray(types);
 		var flipped = shuffleArray(flipped);
 
-		for (var i = 0; i < 4; i++) { //CHANGE TO i < 4
+		for (var i = 0; i < 2; i++) { //CHANGE TO i < 4
 			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
 			var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
 			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});

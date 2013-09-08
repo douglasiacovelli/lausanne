@@ -25,7 +25,7 @@
 
 					<div class="row-fluid form-user">
 						<div class="span12">
-							
+							<input type="text" id="name" placeholder="Nome" class="enter-input" required>
 							<input type="number" id="age" placeholder="Idade" class="enter-input" min="18" max="99" required>
 							<select id="gender" required>
 								<option value="" selected>Sexo</option>
@@ -226,6 +226,7 @@
 					<tr>
 						<th>ID</th>
 						<th>Data e Hora</th>
+						<th>Nome</th>
 						<th>Idade</th>
 						<th>Sexo</th>
 						<th>Mão de escrita</th>
@@ -235,8 +236,9 @@
 				<tbody>
 					{{#each usuarios}}
 						<tr>
-							<td>{{ _id }}</td>
+							<td>{{ id }}</td>
 							<td>{{ created }}</td>
+							<td>{{ name }}</td>
 							<td>{{ age }}</td>
 							<td>{{ gender }}</td>
 							<td>{{ handwriting }}</td>
@@ -384,6 +386,35 @@
 					<div class="span12">
 						<button id="start_experiment" class="div-button create">
 							<span style="font-size: 3em">Clique para Iniciar o Experimento!</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</template>
+
+<template name="error">
+	<div class="container-fluid text-center">
+		<div class="row-fluid">
+			<div class="span12">
+				<h2>Stars2</h2>
+			</div>
+		</div>
+		<div class="row-fluid stage">
+			<div class="span12 height bg-gray">
+				
+				<div class="row-fluid before-button">
+					<div class="span12">
+						<div class="spacer-20"></div>
+						<div class="spacer-20"></div>
+						<span class="smile" style="font-size: 3em">Opsss! Acho que você se perdeu :/</span>
+					</div>
+				</div>
+				<div class="row-fluid">
+					<div class="span12">
+						<button id="start_experiment" class="div-button create">
+							<span style="font-size: 3em">Volte para a página inicial</span>
 						</button>
 					</div>
 				</div>
