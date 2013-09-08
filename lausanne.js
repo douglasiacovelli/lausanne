@@ -63,15 +63,28 @@ Router.map(function() {
 				var sessions = Sessions.find({exp_id: exp_id}).fetch();
 
 				experiments[x].session = new Array(4);
-				for(y in sessions){
-					//console.log('\t'+sessions[y].id);
+				
+				//Variavel relativa a cada experimento
+				var answer_id = 1;
 
+
+				for(y in sessions){
+					
+					/**
+					 * Sao encontradas todas as respostas para aquela sessao e sao inseridas
+					 * nestas respostas as informacoes a serem exibidas, visto que o ultimo
+					 * laco itera sobre este elemento: answers (dentro de cada session (dentro de cada exp)).
+					 */
 					var answers = Answers.find({session_id: sessions[y]._id}).fetch();
 					
 					experiments[x].session[y] = answers;
 					
-
 					for(z in answers){
+
+						experiments[x].session[y][z].answer_id = answer_id;
+						experiments[x].session[y][z].type = answers[z].img.substring(answers[z].img.length-1);
+						experiments[x].session[y][z].cod_img = answers[z].img.substring(6,8);
+						experiments[x].session[y][z].mode = answers[z].img.substring(8,9);
 						experiments[x].session[y][z].exp_id = exp_id;
 						experiments[x].session[y][z].speaker_id = sessions[y].speaker_id;
 						experiments[x].session[y][z].hearer_id = sessions[y].hearer_id;
@@ -79,13 +92,11 @@ Router.map(function() {
 						var date = new Date();
 						var new_date = dateFormatted(experiments[x].session[y][z].created);
 						experiments[x].session[y][z].created = new_date;
+						
+						answer_id++;
 					}
-
-					console.log(experiments[x].session[y]);
 				}
-
 			};
-
 			return {experiments: experiments}
 		}
 	});

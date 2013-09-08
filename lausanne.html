@@ -182,9 +182,13 @@
 			<table class="table table-striped">
 				<thead>
 					<tr>
-						<th>ID</th>
+						<th>ID Experimento</th>
+						<th>ID Transação</th>
 						<th>Data e Hora</th>
 						<th>Img</th>
+						<th>Cod. Img</th>
+						<th>Tipo</th>
+						<th>Modo</th>
 						<th>Invertida</th>
 						<th>Speaker</th>
 						<th>Hearer</th>
@@ -200,8 +204,12 @@
 							{{#each this}}
 								<tr>
 									<td>{{ exp_id }}</td>
+									<td>{{ answer_id }}</td>
 									<td>{{ created }}</td>
 									<td>{{ img }}</td>
+									<td>{{ cod_img }}</td>
+									<td>{{ type }}</td>
+									<td>{{ mode }}</td>
 									<td>{{ isFlipped }}</td>
 									<td>{{ speaker_id }}</td>
 									<td>{{ hearer_id }}</td>
