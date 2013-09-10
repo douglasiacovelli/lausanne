@@ -456,6 +456,30 @@ if (Meteor.isClient) {
 		return amIwaiting('speaker', Session.get('session_id'));
 	}
 
+	Template.speaker.type = function(){
+		var experiment = Experiments.findOne({id: Session.get('exp_id')});
+
+		if(experiment.isPractice){
+			return 'Prática';
+		}else{
+			return 'Experimento';	
+		}
+		
+	}
+
+	Template.hearer.type = function(){
+		var experiment = Experiments.findOne({id: Session.get('exp_id')});
+
+		if(experiment.isPractice){
+			return 'Prática';
+		}else{
+			return 'Experimento';	
+		}
+		
+	}
+
+	
+
 	Template.speaker.problem = function(){
 		var problem = actualProblem(Session.get('session_id'));
 		if(problem){

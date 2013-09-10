@@ -10,12 +10,16 @@
 	<div class="container-fluid text-center">
 		<div class="row-fluid">
 			<div class="span12">
-				<h2>Stars2</h2>
+				<div class="header">
+					<h2>Stars2</h2>
+				</div>
 			</div>
 		</div>
+
 		<form action="javascript:void(0);" id="add-user" style="margin: 0">
 			<div class="row-fluid stage">
 				<div class="span12 height create-user bg-gray">
+				<div class="spacer-20"></div>
 					<!-- <a href="#" id="create" class="full"></a> -->
 					<div class="row-fluid">
 						<div class="span12">
@@ -45,17 +49,14 @@
 			<div class="row-fluid">
 				<div class="span12">
 					<div class="termo-concordancia create">
-						<span>Termo de Concordância</span>
+						<span>Li e concordo com o <a href="#">TERMO DE CONCORDÂNCIA</a></span>
 						<div class="spacer-20"></div>
 						
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Doloremque, dolorum, odio necessitatibus quaerat odit aliquam veritatis sint rerum blanditiis eum corporis dicta delectus ea iste cum at ut saepe placeat.</p>
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam, aspernatur, sapiente, explicabo corporis aliquid deserunt temporibus voluptatum enim voluptatibus tempora error commodi ratione est dolorum eaque accusantium earum provident quibusdam. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa, dicta maxime ut itaque atque repudiandae nam enim reiciendis vitae minus ea dolorum corporis quia non illum ratione ipsam quae cupiditate? Lorem ipsum dolor sit amet, consectetur adipisicing elit. Explicabo, inventore sapiente officia consequatur odio quibusdam dolorum ad quos soluta? Incidunt, reprehenderit, beatae quidem inventore et quaerat qui architecto error! Debitis! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptas, ducimus, nostrum, veritatis nesciunt maxime magni quia hic natus odio earum perspiciatis accusantium excepturi? Officiis, dolorum omnis perspiciatis nulla facilis veritatis.</p>
-
 						<div class="spacer-20"></div>
 						<div class="row-fluid">
 							<div class="span12">
 								<button class="button-accept">
-									<span><b>Iniciar Experimento!</b> <br><small style="color: #8D8D8D">Clicando neste botão declaro que li e aceito o Termo de Concordância.</small></span>
+									<span><b>Iniciar Experimento!</b></span>
 								</div>
 							</div>
 						</div>
@@ -72,7 +73,9 @@
 	<div class="container-fluid text-center">
 		<div class="row-fluid">
 			<div class="span12">
-				<h2>Stars2</h2>
+				<div class="header">
+					<h2>Stars2</h2>
+				</div>
 			</div>
 		</div>
 		<div class="row-fluid stage">
@@ -92,7 +95,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="span6 height">
+			<div class="span6 height" style="background-color: #fff">
 				<form id="enter" action="javascript:void(0);" style="margin: 0">
 					<div class="row-fluid before-button">
 						<div class="span12">
@@ -126,11 +129,15 @@
 	<div class="container-fluid text-center">
 		<div class="row-fluid">
 			<div class="span12">
-				<h2>Stars2</h2>
+				<div class="header">
+					<h2>Stars2</h2>
+				</div>
 			</div>
 		</div>
 		<div class="row-fluid stage">
+
 			<div class="span6 height bg-gray">
+			<div class="spacer-20"></div>
 				<a href="#" id="create" class="full"></a>
 				
 				<div class="row-fluid before-button">
@@ -145,14 +152,17 @@
 						</button>
 					</div>
 				</div>
+
 			</div>
-			<div class="span6 height">
+
+			<div class="span6 height" style="background-color: #fff">
+			<div class="spacer-20"></div>
 				<form id="enter" action="javascript:void(0);" style="margin: 0">
 					<div class="row-fluid before-button">
 						<div class="span12">
 						
 							<input type="text" id="enter-input" placeholder="ABC" class="enter-input light" required>
-						
+							
 							{{#if wrong_input }}
 								<div class="alert alert-error">
 									<button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -160,6 +170,7 @@
 								</div>
 							{{/if}}
 						</div>
+
 					</div>
 					<div class="row-fluid">
 						<div class="span12">
@@ -274,15 +285,19 @@
 	<div class="container-fluid text-center">
 		<div class="row-fluid">
 			<div class="span12">
-				<h2>Experimento {{ experiment.id }} <small style="font-size: 0.5em">(informe este número para o seu parceiro)</small> </h2>
+				<div class="header">
+					<h2><b>{{ type }}</b> {{ experiment.id }}<br>
+					<small style="color: #f3f3f3; font-weight: 300">Descreva o objeto apontado pela seta para o seu parceiro</small></h2>
+				</div>
 			</div>
 		</div>
+		<div class="spacer-20"></div>
 		<div class="content">
 			<div class="row-fluid">
 				<div class="span12">
 					<img src="/img/speaker/{{ problem.img }}.png" class="{{ problem.isFlipped }} img-experiment">
 					<hr/>
-					<p class="text-input">A Seta está apontando para o/a:</p>
+					<p class="text-input">A seta está apontando para o/a:</p>
 				</div>
 			</div>
 			<form action="javascript:void(0);" id="submitDescription" style="margin: 0">
@@ -310,9 +325,12 @@
 	<div class="container-fluid text-center">
 		<div class="row-fluid">
 			<div class="span12">
-				<h2><small style="color: #f3f3f3; font-weight: 300">Selecione a letra correspondente à/ao <b style="color: #fff">{{ description.message }}</b></small> </h2> 
+				<div class="header">
+					<h2><b>{{ type }}</b><br><small style="color: #f3f3f3; font-weight: 300"> Selecione a letra correspondente à/ao <b style="color: #fff">{{ description.message }}</b></small> </h2> 
+				</div>
 			</div>
 		</div>
+		<div class="spacer-20"></div>
 		<div class="content">
 			<div class="row-fluid">
 				<div class="span12">
@@ -350,7 +368,9 @@
 	<div class="container-fluid text-center">
 		<div class="row-fluid">
 			<div class="span12">
-				<h2>Stars2</h2>
+				<div class="header">
+					<h2>Stars2</h2>
+				</div>
 			</div>
 		</div>
 		<div class="row-fluid stage">
@@ -379,7 +399,9 @@
 	<div class="container-fluid text-center">
 		<div class="row-fluid">
 			<div class="span12">
-				<h2>Stars2</h2>
+				<div class="header">
+					<h2>Stars2</h2>
+				</div>
 			</div>
 		</div>
 		<div class="row-fluid stage">
@@ -408,7 +430,9 @@
 	<div class="container-fluid text-center">
 		<div class="row-fluid">
 			<div class="span12">
-				<h2>Stars2</h2>
+				<div class="header">
+					<h2>Stars2</h2>
+				</div>
 			</div>
 		</div>
 		<div class="row-fluid stage">
