@@ -284,6 +284,8 @@ if (Meteor.isClient) {
 
 			Usuarios.insert({id: user_id, name: name, age: age, gender: gender, handwriting: handwriting , created: Date.now()/1000});
 			Session.set('user_id', user_id);
+			
+			console.log('ok');
 
 			Session.set('wrong_input', false);
 			Router.go('practice_start');
@@ -319,8 +321,8 @@ if (Meteor.isClient) {
 		},
 
 		'submit #enter' : function() {
-			var exp_id = document.getElementById('enter-input').value;
-			if(exp_id){
+			 var exp_id = document.getElementById('enter-input').value;
+			 if(exp_id){
 				
 				// Faz a conversão do input para número e redireciona a pessoa para a página do experimento
 				// wrong_input serve para o template saber se deve adicionar ou não a msg de erro (experimento inválido)
@@ -339,7 +341,6 @@ if (Meteor.isClient) {
 				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
 				Session.set('session_id', session._id);
 				
-
 				
 				// TO-DO: verificar se experimento existe no banco e se está ativo
 			}else{
@@ -509,7 +510,8 @@ if (Meteor.isClient) {
 
 				var exp = Experiments.findOne({id: Session.get('exp_id')});
 				if(exp.isPractice == true){
-					Router.go('start', {user_id: Session.get('user_id')});
+					
+					Router.go('start');
 				}else{
 					Router.go('ending');
 				}
@@ -535,26 +537,33 @@ if (Meteor.isClient) {
 			 */
 			var session = Sessions.findOne({exp_id: Session.get('exp_id'), id: 2});
 			if(session){
-
-				if(session.speaker_id == null){
+				setTimeout(function(){
+					if(session.speaker_id == null){
 
 					
-					Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
-					Session.set('session_id', session._id);
+						Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
+						Session.set('session_id', session._id);
 
-					setTimeout(function(){
+					
 						Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
 						console.log('Delay');
-					}, 500);
+					
 
-				}else{
-					var exp = Experiments.findOne({id: Session.get('exp_id')});
-					if(exp.isPractice == true){
-						Router.go('start');
 					}else{
-						Router.go('ending');
-					}
-				};
+						
+						var exp = Experiments.findOne({id: Session.get('exp_id')});
+						if(exp.isPractice == true){
+
+							Router.go('start');
+						}else{
+							Router.go('ending');
+						}
+						
+						
+					};
+
+				},500);
+				
 			}
 
 		}
@@ -663,14 +672,17 @@ if (Meteor.isClient) {
 	}
 
 	function createExperiment(isPractice){
-		var exp_id = Experiments.findOne({}, {sort: {created: -1}});
+		var exp = Experiments.findOne({}, {sort: {created: -1}});
 		
 		var letter1 = randomLetter();
 		var letter2 = randomLetter();
 
-		if(exp_id){
-			exp_id = exp_id.id.substring(1,exp_id.id.length-1);
-			console.log(exp_id);
+		
+		var exp_id;
+
+		if(exp){
+			exp_id = exp.id.substring(1,exp.id.length-1);
+			
 			exp_id++;
 			exp_id = letter1+exp_id+letter2;
 			console.log(exp_id);
@@ -678,12 +690,14 @@ if (Meteor.isClient) {
 			exp_id = letter1+1+letter2;
 		}
 
-
-		Experiments.insert({ id: exp_id, isPractice: isPractice, created: Date.now()/1000});
 		
-		// Criacao da Session e set da variavel Session('session_id')
-		var session = Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
+		Experiments.insert({ id: exp_id, isPractice: isPractice, created: Date.now()/1000});		
+		var session;
+
+		session = Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
 		Session.set('session_id', session);
+				
+		
 
 		if(isPractice){
 			prepareSessionPractices(exp_id, conditions, types, flipped);
