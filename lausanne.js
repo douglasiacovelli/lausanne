@@ -232,8 +232,8 @@ ExperimentController = ApplicationController.extend({
 if (Meteor.isClient) {
 
 	Meteor.startup(function() {
-	    // so you can know if you've successfully in-browser browsed
-	    console.log('Started at ' + location.href);
+		// so you can know if you've successfully in-browser browsed
+		console.log('Started at ' + location.href);
 	});
 
 	/**
@@ -437,6 +437,20 @@ if (Meteor.isClient) {
 			//Verificar se resposta dada foi correta
 		}
 	});
+
+
+	Template.start_experiment.events({
+		'click #start_experiment_button': function() {
+			if(Session.get('isPractice')){
+				Session.set('isPractice', false);
+				var experiment = Experiments.findOne({id: Session.get('exp_id')});
+
+				Experiments.update(experiment._id, {$set: {isPractice:  false}});	
+			}
+			console.log('va');
+			Router.go('experiment', {id: Session.get('exp_id'), user_type: Session.get('user_type')});
+		}
+	});
 	
 	Template.hearer.waiting = function(){
 		return amIwaiting('hearer', Session.get('session_id'));
@@ -553,7 +567,7 @@ if (Meteor.isClient) {
 		var answer = Answers.findOne({session_id: session_id},  {sort: {created: -1}});
 		console.log(user);
 
-        if(user == 'hearer'){
+		if(user == 'hearer'){
 
 			if(description && !answer){
 				return false;
@@ -569,8 +583,8 @@ if (Meteor.isClient) {
 				}
 			}
 			
-        }else{
-        	if(description && !answer){
+		}else{
+			if(description && !answer){
 				return true;
 			}else{
 				if(!description){
@@ -584,32 +598,33 @@ if (Meteor.isClient) {
 				}
 				return false;
 			}
-        }
-    };
+		}
+	};
 
 
-    function actualProblem(session_id, user_type){
-    	var experiment = Experiments.findOne({id: Session.get('exp_id')});
+	function actualProblem(session_id, user_type){
+		var experiment = Experiments.findOne({id: Session.get('exp_id')});
 
 		Session.set('isPractice', experiment.isPractice);
 
-    	var problem;
-    	if(Session.get('isPractice')){
-    		problem = Problems.findOne({session_id: session_id, isActive: true, isPractice: true}, {sort: {created: 1}});
+		var problem;
+		if(Session.get('isPractice')){
+			problem = Problems.findOne({session_id: session_id, isActive: true, isPractice: true}, {sort: {created: 1}});
 
-    		if(problem == null){ //Fim dos problemas de pratica
-    			Session.set('isPractice', false);
-    			Experiments.update(experiment._id, {$set: {isPractice:  false}});
-
-    			Router.go('start_experiment', {user_type: user_type});
-    		}else{
-    			Session.set('problem_id', problem._id);
-    			return problem;
-    		}
-    	}
-    	
-    	problem = Problems.findOne({session_id: session_id, isActive: true,  isPractice: false}, {sort: {created: 1}});
-    	
+			if(problem == null){ //Fim dos problemas de pratica
+					
+				
+				
+				console.log('Indo para start_experiment');
+				Router.go('start_experiment', {user_type: user_type});
+			}else{
+				Session.set('problem_id', problem._id);
+				return problem;
+			}
+		}
+		
+		problem = Problems.findOne({session_id: session_id, isActive: true,  isPractice: false}, {sort: {created: 1}});
+		
 		if(problem){
 			Session.set('problem_id', problem._id);
 		}else{
@@ -618,14 +633,14 @@ if (Meteor.isClient) {
 		
 
 		return problem;
-    }
+	}
 
 	//Declarando os arrays que serão utilizados para selecionar as imagens
 	var conditions = ['01f', '01o', '02f', '02o', '03f', '03o', '04f', '04o', '05f', '05o', '06f', '06o', '07f', '07o', '08f', '08o'];
 	var types = ['1','1','1','1','1','1','1','1','2','2','2','2','2','2','2','2'];
 	var flipped = ['','','','','','','','','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal','flip-horizontal'];
 
-    function prepareSessionProblems(exp_id, conditions, types, flipped){
+	function prepareSessionProblems(exp_id, conditions, types, flipped){
 		var conditions = shuffleArray(conditions);
 		var types = shuffleArray(types);
 		var flipped = shuffleArray(flipped);
@@ -644,42 +659,30 @@ if (Meteor.isClient) {
 		Problems.insert({session_id: session._id, img: img4, isFlipped: flipped[11], isActive: true, isPractice: true, created: Date.now()/1000});
 
 		
-		for (var i = 0; i < 16; i++) {
+		for (var i = 0; i < 3; i++) {//Change 3 to 16
 			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
 			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, isPractice: false, created: Date.now()/1000});
 		};
 	}
 
-	function prepareSessionPractices(exp_id, conditions, types, flipped){
-		var conditions = shuffleArray(conditions);
-		var types = shuffleArray(types);
-		var flipped = shuffleArray(flipped);
-
-		for (var i = 0; i < 2; i++) { //CHANGE TO i < 4
-			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
-			var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
-			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});
-		};
+	function randomLetter(){
+		var alpha = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','U','V','W','X','Y','Z'];
+		var rand = alpha[Math.floor(Math.random() * alpha.length)];
+		return rand;
 	}
-
-    function randomLetter(){
-    	var alpha = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','U','V','W','X','Y','Z'];
-    	var rand = alpha[Math.floor(Math.random() * alpha.length)];
-    	return rand;
-    }
 
 	/**
 	 * Randomize array element order in-place.
 	 * Using Fisher-Yates shuffle algorithm.
 	 */
 	function shuffleArray(array) {
-	    for (var i = array.length - 1; i > 0; i--) {
-	        var j = Math.floor(Math.random() * (i + 1));
-	        var temp = array[i];
-	        array[i] = array[j];
-	        array[j] = temp;
-	    }
-	    return array;
+		for (var i = array.length - 1; i > 0; i--) {
+			var j = Math.floor(Math.random() * (i + 1));
+			var temp = array[i];
+			array[i] = array[j];
+			array[j] = temp;
+		}
+		return array;
 	}
 
 	function createExperiment(isPractice){
