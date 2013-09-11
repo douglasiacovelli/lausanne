@@ -191,15 +191,18 @@ ExperimentController = ApplicationController.extend({
 
 		var exp_id = this.params.id;
 
+		var experiment = Experiments.findOne({id: exp_id});
+		if(!experiment){
+			Router.go('error');
+			return;
+		}
+
 		Session.set('exp_id', exp_id);
 		
-
-		var result_experiments = Experiments.findOne({id: exp_id});
-
 		var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
 
 		return {
-			'experiment': result_experiments,
+			'experiment': experiment,
 			'description': description
 		};
 	},
@@ -338,7 +341,11 @@ if (Meteor.isClient) {
 				
 				// To-Do: Deve-se verificar se o experimento existe e é válido. Se for, ok.
 
-				exp_id = exp_id;
+				var experiment = Experiments.findOne({id: exp_id});
+				if(!experiment){
+					Session.set('wrong_input', true);
+					return;
+				}
 				
 				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: 1}}); //Pega a primeira session criada
 
@@ -360,44 +367,6 @@ if (Meteor.isClient) {
 		 }
 	});
 	
-	Template.practice_start.events({
-
-		'click #create' : function() {
-			createExperiment(true);
-			
-		},
-
-		'submit #enter' : function() {
-			var exp_id = document.getElementById('enter-input').value;
-			if(exp_id){
-				
-				// Faz a conversão do input para número e redireciona a pessoa para a página do experimento
-				// wrong_input serve para o template saber se deve adicionar ou não a msg de erro (experimento inválido)
-				
-				// To-Do: Deve-se verificar se o experimento existe e é válido. Se for, ok.
-
-				exp_id = exp_id;
-				
-				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: 1}}); //Pega a primeira session criada
-
-				Sessions.update(session._id, {$set: {hearer_id:  Session.get('user_id')}});
-
-				Router.go('experiment', {id: exp_id, user_type: 'hearer'});
-				Session.set('wrong_input', false);
-
-				var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
-				Session.set('session_id', session._id);
-				
-
-				
-				// TO-DO: verificar se experimento existe no banco e se está ativo
-			}else{
-				Session.set('wrong_input', true);	
-			}
-			
-			
-		 }
-	});
 
 	Template.speaker.events({
 		'submit #submitDescription' : function() {
