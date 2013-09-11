@@ -286,8 +286,7 @@
 		<div class="row-fluid">
 			<div class="span12">
 				<div class="header">
-					<h2><b>{{ type }}</b> {{ experiment.id }}<br>
-					<small style="color: #f3f3f3; font-weight: 300">Descreva o objeto apontado pela seta para o seu parceiro</small></h2>
+					<h2><b>{{ type }}</b> {{ experiment.id }}</h2>
 				</div>
 			</div>
 		</div>
@@ -396,36 +395,6 @@
 	</div>	
 </template>
 
-<template name="start_experiment">
-	<div class="container-fluid text-center">
-		<div class="row-fluid">
-			<div class="span12">
-				<div class="header">
-					<h2>Stars2</h2>
-				</div>
-			</div>
-		</div>
-		<div class="row-fluid stage">
-			<div class="span12 height bg-gray">
-				
-				<div class="row-fluid before-button">
-					<div class="span12">
-						<div class="spacer-20"></div>
-						<div class="spacer-20"></div>
-						<span class="smile" style="font-size: 3em">Fim da prática! :)</span>
-					</div>
-				</div>
-				<div class="row-fluid">
-					<div class="span12">
-						<button id="start_experiment" class="div-button create">
-							<span style="font-size: 3em">Clique para Iniciar o Experimento!</span>
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>	
-</template>
 
 <template name="error">
 	<div class="container-fluid text-center">
@@ -450,6 +419,37 @@
 					<div class="span12">
 						<button id="start_experiment" class="div-button create">
 							<span style="font-size: 3em"><a href="{{urlFor 'home'}}" class="full"></a>Volte para a página inicial</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</template>
+
+<template name="start_experiment">
+	<div class="container-fluid text-center">
+		<div class="row-fluid">
+			<div class="span12">
+				<div class="header">
+					<h2>Stars2</h2>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid stage">
+			<div class="span12 height bg-gray">
+				
+				<div class="row-fluid before-button">
+					<div class="span12">
+						<div class="spacer-20"></div>
+						<div class="spacer-20"></div>
+						<span class="smile" style="font-size: 3em">Atenção!</span>
+					</div>
+				</div>
+				<div class="row-fluid">
+					<div class="span12">
+						<button id="start_experiment" class="div-button create">
+							<span style="font-size: 3em"><a href="/experiment/{{ exp_id }}/{{ user_type}}" class="full"></a>Clique aqui para começar o experimento agora!</span>
 						</button>
 					</div>
 				</div>

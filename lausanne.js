@@ -38,16 +38,24 @@ Router.map(function() {
 		}
 	});
 
-	this.route('practice_start', {
-		path: '/practice_start'
+	this.route('start_experiment', {
+		path: '/start_experiment/:user_type',
+		data: function(){
+			return {
+				user_type: this.params.user_type,
+				exp_id: Session.get('exp_id')
+			}
+		}
 	}, 
 	function(){
 		if(!Session.get('user_id')){
 			Router.go('error');
 		}else{
-			this.render('practice_start');
+			this.render('start_experiment');
 		}
 	});
+
+	
 
 	/**
 	 * Routing para as pagina em que são exibidos todos os resultados dos experimentos.
@@ -112,18 +120,18 @@ Router.map(function() {
 	});
 
 	this.route('users', {
-			path: '/users',
-			data: function () {
+		path: '/users',
+		data: function () {
 
-				var usuarios = Usuarios.find().fetch();
+			var usuarios = Usuarios.find().fetch();
 
-				for(x in usuarios){
-					usuarios[x].created = dateFormatted(usuarios[x].created);
-				}
-
-				return {usuarios: usuarios}
+			for(x in usuarios){
+				usuarios[x].created = dateFormatted(usuarios[x].created);
 			}
-		});
+
+			return {usuarios: usuarios}
+		}
+	});
 
 	/**
 	 * Routing para as paginas de experimento de fato
@@ -236,6 +244,7 @@ if (Meteor.isClient) {
 	Session.setDefault('tests_queue', false);
 	Session.setDefault('problem_id', null);
 	Session.setDefault('user_type', null);
+	Session.setDefault('isPractice', null);
 
 	Template.home.wrong_input = function(){
 		if(Session.get('wrong_input') == true){
@@ -288,7 +297,7 @@ if (Meteor.isClient) {
 			console.log('ok');
 
 			Session.set('wrong_input', false);
-			Router.go('practice_start');
+			Router.go('start');
 
 		}
 	});
@@ -458,9 +467,7 @@ if (Meteor.isClient) {
 	}
 
 	Template.speaker.type = function(){
-		var experiment = Experiments.findOne({id: Session.get('exp_id')});
-
-		if(experiment.isPractice){
+		if(Session.get('isPractice')){
 			return 'Prática';
 		}else{
 			return 'Experimento';	
@@ -469,9 +476,8 @@ if (Meteor.isClient) {
 	}
 
 	Template.hearer.type = function(){
-		var experiment = Experiments.findOne({id: Session.get('exp_id')});
 
-		if(experiment.isPractice){
+		if(Session.get('isPractice')){
 			return 'Prática';
 		}else{
 			return 'Experimento';	
@@ -482,7 +488,7 @@ if (Meteor.isClient) {
 	
 
 	Template.speaker.problem = function(){
-		var problem = actualProblem(Session.get('session_id'));
+		var problem = actualProblem(Session.get('session_id'), 'speaker');
 		if(problem){
 			return problem;
 		}else{
@@ -509,12 +515,9 @@ if (Meteor.isClient) {
 			}else{
 
 				var exp = Experiments.findOne({id: Session.get('exp_id')});
-				if(exp.isPractice == true){
-					
-					Router.go('start');
-				}else{
-					Router.go('ending');
-				}
+			
+				Router.go('ending');
+			
 				
 			}
 
@@ -522,7 +525,9 @@ if (Meteor.isClient) {
 	};
 
 	Template.hearer.problem = function(){
-		var problem = actualProblem(Session.get('session_id'));
+		
+
+		var problem = actualProblem(Session.get('session_id'),'hearer');
 		if(problem){
 			return problem;
 		}else{
@@ -552,14 +557,7 @@ if (Meteor.isClient) {
 					}else{
 						
 						var exp = Experiments.findOne({id: Session.get('exp_id')});
-						if(exp.isPractice == true){
-
-							Router.go('start');
-						}else{
-							Router.go('ending');
-						}
-						
-						
+						Router.go('ending');
 					};
 
 				},500);
@@ -610,10 +608,30 @@ if (Meteor.isClient) {
     };
 
 
-    function actualProblem(session_id){
-    	var problem = Problems.findOne({session_id: session_id, isActive: true}, {sort: {created: 1}});
+    function actualProblem(session_id, user_type){
+    	var experiment = Experiments.findOne({id: Session.get('exp_id')});
+
+		Session.set('isPractice', experiment.isPractice);
+
+    	var problem;
+    	if(Session.get('isPractice')){
+    		problem = Problems.findOne({session_id: session_id, isActive: true, isPractice: true}, {sort: {created: 1}});
+
+    		if(problem == null){ //Fim dos problemas de pratica
+    			Session.set('isPractice', false);
+    			Experiments.update(experiment._id, {$set: {isPractice:  false}});
+
+    			Router.go('start_experiment', {user_type: user_type});
+    		}else{
+    			Session.set('problem_id', problem._id);
+    			return problem;
+    		}
+    	}
+    	
+    	problem = Problems.findOne({session_id: session_id, isActive: true,  isPractice: false}, {sort: {created: 1}});
+    	
 		if(problem){
-			Session.set('problem_id', problem._id);	
+			Session.set('problem_id', problem._id);
 		}else{
 			return null;
 		}
@@ -632,10 +650,23 @@ if (Meteor.isClient) {
 		var types = shuffleArray(types);
 		var flipped = shuffleArray(flipped);
 
-		for (var i = 0; i < 4; i++) {
+	
+
+		var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
+		var img1 = 'type'+types[5]+'/'+conditions[5]+'-t'+types[5];
+		var img2 = 'type'+types[8]+'/'+conditions[8]+'-t'+types[8];
+		var img3 = 'type'+types[2]+'/'+conditions[2]+'-t'+types[2];
+		var img4 = 'type'+types[11]+'/'+conditions[11]+'-t'+types[11];
+
+		Problems.insert({session_id: session._id, img: img1, isFlipped: flipped[5], isActive: true, isPractice: true, created: Date.now()/1000});
+		Problems.insert({session_id: session._id, img: img2, isFlipped: flipped[8], isActive: true, isPractice: true, created: Date.now()/1000});
+		Problems.insert({session_id: session._id, img: img3, isFlipped: flipped[2], isActive: true, isPractice: true, created: Date.now()/1000});
+		Problems.insert({session_id: session._id, img: img4, isFlipped: flipped[11], isActive: true, isPractice: true, created: Date.now()/1000});
+
+		
+		for (var i = 0; i < 16; i++) {
 			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
-			var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
-			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, created: Date.now()/1000});
+			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, isPractice: false, created: Date.now()/1000});
 		};
 	}
 
@@ -690,20 +721,22 @@ if (Meteor.isClient) {
 			exp_id = letter1+1+letter2;
 		}
 
+		Session.set('isPractice', true);
 		
-		Experiments.insert({ id: exp_id, isPractice: isPractice, created: Date.now()/1000});		
+		/**
+		 * Todo experimento começa como isPractice: true, para que ambos usuários saibam que estão
+		 * praticando. Posteriormente ao fim dos practices, então é atualizada esta tupla,
+		 * alterando o isPractice para false.
+		 */
+
+		Experiments.insert({ id: exp_id, isPractice: true, created: Date.now()/1000});		
 		var session;
 
 		session = Sessions.insert({exp_id: exp_id, id: 1, created: Date.now()/1000, speaker_id: Session.get('user_id'), hearer_id: null });
 		Session.set('session_id', session);
-				
 		
 
-		if(isPractice){
-			prepareSessionPractices(exp_id, conditions, types, flipped);
-		}else{
-			prepareSessionProblems(exp_id, conditions, types, flipped);
-		}
+		prepareSessionProblems(exp_id, conditions, types, flipped);
 		
 		Router.go('experiment', {id: exp_id, user_type: 'speaker'});
 		
