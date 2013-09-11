@@ -371,7 +371,17 @@ if (Meteor.isClient) {
 	Template.speaker.events({
 		'submit #submitDescription' : function() {
 			messageInput = document.getElementById('message').value;
+			messageInput += '';
 			//console.log(this.params);
+			var denied_words = ["meio", "centro", "central", "área", "area", "zona", "região", "regiao", "canto", "inferior", "superior", "norte", "sul", "leste", "oeste", "nordeste", "noroeste", "sudeste", "sudoeste", "tela", "imagem", "figura", "coluna", "linha", "fileira", "posição", "posicao", "primeiro", "primeira", "segundo", "segunda", "terceiro", "terceira", "quarto", "quarta", "quinto", "quinta"]
+
+			for (var i = 0; i < denied_words.length; i++) {
+				if(messageInput.indexOf(denied_words[i]) != -1){
+					console.log("palavra não permitida");
+					alert("Por favor tente de novo sem usar palavras como \""+denied_words[i]+"\"");
+					return;
+				}
+			}
 			Descriptions.insert({ session_id: Session.get('session_id'), message: messageInput, created: Date.now()/1000 });
 
 			document.getElementById('message').value = '';
@@ -392,6 +402,7 @@ if (Meteor.isClient) {
 				return false;
 			}
 			
+
 			var description = Descriptions.findOne({session_id: Session.get('session_id')}, {sort: {created: -1}});
 			var problem = Problems.findOne(Session.get('problem_id'));
 
