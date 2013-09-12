@@ -55,6 +55,28 @@ Router.map(function() {
 		}
 	});
 
+	this.route('change_role', {
+		path: '/change_role/:user_type',
+		data: function(){
+			var tipo_usuario;
+			if(this.params.user_type == 'speaker'){
+				tipo_usuario = 'Falante';
+			}else{
+				tipo_usuario = 'Ouvinte';
+			}
+			return {
+				user_type: this.params.user_type,
+				tipo_usuario: tipo_usuario
+			}
+		}
+	}, 
+	function(){
+		if(!Session.get('user_id')){
+			Router.go('error');
+		}else{
+			this.render('change_role');
+		}
+	});
 	
 
 	/**
@@ -221,9 +243,8 @@ ExperimentController = ApplicationController.extend({
 			
 		}
 
-		if(Session.get('user_type') == null){
-			Session.set('user_type', this.params.user_type);
-		}
+		
+		Session.set('user_type', this.params.user_type);
 		
 	}
 
@@ -451,6 +472,15 @@ if (Meteor.isClient) {
 			Router.go('experiment', {id: Session.get('exp_id'), user_type: Session.get('user_type')});
 		}
 	});
+
+	Template.change_role.events({
+		'click #change_role_button': function() {
+			var link = document.getElementById('change_role_button')
+
+			var user_type = link.getAttribute("data-target")
+			Router.go('experiment', {id: Session.get('exp_id'), user_type: user_type});
+		}
+	});
 	
 	Template.hearer.waiting = function(){
 		return amIwaiting('hearer', Session.get('session_id'));
@@ -493,18 +523,19 @@ if (Meteor.isClient) {
 			
 			var session = Sessions.findOne({exp_id: Session.get('exp_id'), id: 2});
 			if(!session){
-				var new_session = Sessions.insert({exp_id: Session.get('exp_id'), id: 2, created: Date.now()/1000, speaker_id: null, hearer_id: Session.get('user_id'), experiment_finished: false });
 				
+				var new_session = Sessions.insert({exp_id: Session.get('exp_id'), id: 2, created: Date.now()/1000, speaker_id: null, hearer_id: Session.get('user_id'), experiment_finished: false });
+				var exp = Experiments.findOne({id: Session.get('exp_id')});
+				
+				Experiments.update(exp._id, {$set: {isPractice:  true}});	
+
 				Session.set('session_id', new_session);
 
-				var exp = Experiments.findOne({id: Session.get('exp_id')});
-				if(exp.isPractice == true){
-					prepareSessionPractices(Session.get('exp_id'), conditions, types, flipped);
-				}else{
-					prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
-				}
-
-				Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
+				
+				prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
+				
+				//Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
+				Router.go('change_role', {user_type: 'hearer'});
 
 			}else{
 
@@ -521,7 +552,7 @@ if (Meteor.isClient) {
 	Template.hearer.problem = function(){
 		
 
-		var problem = actualProblem(Session.get('session_id'),'hearer');
+		var problem = actualProblem(Session.get('session_id'), 'hearer');
 		if(problem){
 			return problem;
 		}else{
@@ -543,8 +574,8 @@ if (Meteor.isClient) {
 						Sessions.update(session._id, {$set: {speaker_id:  Session.get('user_id')}});
 						Session.set('session_id', session._id);
 
-					
-						Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
+						Router.go('change_role', {user_type: 'speaker'});
+						//Router.go('experiment', {id: Session.get('exp_id'), user_type: 'speaker'});
 						console.log('Delay');
 					
 
