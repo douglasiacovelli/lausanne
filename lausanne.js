@@ -470,8 +470,13 @@ if (Meteor.isClient) {
 				Problems.update(Session.get('problem_id'), {$set: {isActive: false}});
 
 			}else{
-				Problems.update(Session.get('problem_id'), {$set: {created: Date.now()/1000}}); //atualiza seu created para que ele fique maior que todos e vá para o fim da fila
-				console.log('Fim da fila problem '+Session.get('problem_id'));
+				if(answer == 'Não Entendi'){
+
+				}else{
+					Problems.update(Session.get('problem_id'), {$set: {created: Date.now()/1000}}); //atualiza seu created para que ele fique maior que todos e vá para o fim da fila
+					console.log('Fim da fila problem '+Session.get('problem_id'));	
+				}
+				
 			}
 			var isFlipped = false;
 			if(problem.isFlipped != ''){
@@ -650,6 +655,10 @@ if (Meteor.isClient) {
 				}
 
 				if(answer.created > description.created){
+					console.log(answer.answer);
+					if(answer.answer == 'Não Entendi'){
+						alert('Atenção! O ouvinte não entendeu. Tente ser mais claro, por favor :)');
+					}
 					return false;
 				}else{
 					return true;
