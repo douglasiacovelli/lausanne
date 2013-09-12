@@ -403,6 +403,33 @@ if (Meteor.isClient) {
 					return;
 				}
 			}
+
+			var words = ["esquerda", "direita", "acima", "em cima", "abaixo", "embaixo", "baixo"];
+
+			var allowed_sentences = ["esquerda d", "direita d", "acima d", "em cima d", "abaixo d", "embaixo d", "baixo d"];
+			
+			//Se neste for ele encontrar uma das palavras como (esquerda, direita), então ele deve verificar se essa palavra
+			//tem um d* na frente com o for de dentro
+			for (var i = 0; i < words.length; i++) {
+				if(messageInput.indexOf(words[i]) != -1){
+
+					var expression_found = false;
+					for (var j = 0; j < allowed_sentences.length; j++) {
+
+						if(messageInput.indexOf(allowed_sentences[j]) != -1){
+							expression_found = true;
+							console.log(allowed_sentences[j]);
+						}
+					}
+					if(!expression_found){
+						alert("Você não deve usar \""+words[i]+"\" isoladamente. Tente de novo, dizendo \""+words[i]+"\" de qual objeto você se refere ");
+						return;
+					}
+				}
+			
+			};
+			
+
 			Descriptions.insert({ session_id: Session.get('session_id'), message: messageInput, created: Date.now()/1000 });
 
 			document.getElementById('message').value = '';
