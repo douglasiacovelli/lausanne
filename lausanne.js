@@ -402,11 +402,6 @@ if (Meteor.isClient) {
 
 				if(index != -1){
 					
-					console.log("index: "+index);
-					console.log("mensagem: "+messageInput);
-					console.log("mensagem Length: "+messageInput.length);
-					console.log("denied: "+denied_words[i]);
-					console.log("denied Length: "+denied_words[i].length);
 					var indexBeforeWord = index-1;
 					var indexAfterWord = index + denied_words[i].length;
 
@@ -440,7 +435,6 @@ if (Meteor.isClient) {
 					}
 					
 					if(denied){
-						console.log("palavra não permitida");
 						alert("Por favor tente de novo sem usar palavras como \""+denied_words[i]+"\"");
 						return;
 					}
