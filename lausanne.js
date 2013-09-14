@@ -394,16 +394,60 @@ if (Meteor.isClient) {
 			messageInput = document.getElementById('message').value;
 			messageInput += '';
 			//console.log(this.params);
-			var denied_words = ["meio", "centro", "central", "área", "area", "zona", "região", "regiao", "canto", "inferior", "superior", "norte", "sul", "leste", "oeste", "nordeste", "noroeste", "sudeste", "sudoeste", "tela", "imagem", "figura", "coluna", "linha", "fileira", "posição", "posicao", "primeiro", "primeira", "segundo", "segunda", "terceiro", "terceira", "quarto", "quarta", "quinto", "quinta"]
+			var denied_words = ["meio", "centro", "central", 'cena', "área", "area", "zona", "região", "regiao", "canto", "inferior", "superior", "norte", "sul", "leste", "oeste", "nordeste", "noroeste", "sudeste", "sudoeste", "tela", "imagem", "figura", "coluna", "linha", "fileira", "posição", "posicao", "primeiro", "primeira", "segundo", "segunda", "terceiro", "terceira", "quarto", "quarta", "quinto", "quinta"]
 
 			for (var i = 0; i < denied_words.length; i++) {
-				if(messageInput.indexOf(denied_words[i]) != -1){
-					console.log("palavra não permitida");
-					alert("Por favor tente de novo sem usar palavras como \""+denied_words[i]+"\"");
-					return;
+				var denied = false;
+				var index = messageInput.indexOf(denied_words[i]);
+
+				if(index != -1){
+					
+					console.log("index: "+index);
+					console.log("mensagem: "+messageInput);
+					console.log("mensagem Length: "+messageInput.length);
+					console.log("denied: "+denied_words[i]);
+					console.log("denied Length: "+denied_words[i].length);
+					var indexBeforeWord = index-1;
+					var indexAfterWord = index + denied_words[i].length;
+
+					if(indexBeforeWord >= 0){
+						
+						
+						if(messageInput.charAt(indexBeforeWord) == ' '){
+							if(indexAfterWord < messageInput.length){
+								if(messageInput.charAt(indexAfterWord) == ' '){
+
+									//"blblal linha balblaba"
+									denied = true;
+								}
+							}else{
+								//"blablal linha"
+								denied = true;
+							}
+						}
+					}else{
+						if(indexAfterWord < messageInput.length){
+							if(messageInput.charAt(indexAfterWord) == ' '){
+
+								//"linha balblaba"
+								denied = true;
+							}
+						}else{
+							//"linha"
+							denied = true;
+						}
+						
+					}
+					
+					if(denied){
+						console.log("palavra não permitida");
+						alert("Por favor tente de novo sem usar palavras como \""+denied_words[i]+"\"");
+						return;
+					}
 				}
 			}
-
+			console.log('OK');
+			return;
 			var words = ["esquerda", "direita", "acima", "em cima", "abaixo", "embaixo", "baixo"];
 
 			var allowed_sentences = ["esquerda d", "direita d", "acima d", "em cima d", "abaixo d", "embaixo d", "baixo d"];
