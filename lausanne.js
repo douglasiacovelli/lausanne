@@ -112,9 +112,18 @@ Router.map(function() {
 					for(z in answers){
 
 						experiments[x].session[y][z].answer_id = answer_id;
-						experiments[x].session[y][z].type = answers[z].img.substring(answers[z].img.length-1);
-						experiments[x].session[y][z].cod_img = answers[z].img.substring(6,8);
-						experiments[x].session[y][z].mode = answers[z].img.substring(8,9);
+						if(answers[z].img.indexOf('practice') != -1){
+							var index = answers[z].img.indexOf('practice');
+
+							experiments[x].session[y][z].type = '-';
+							experiments[x].session[y][z].cod_img = '-';
+							experiments[x].session[y][z].mode = answers[z].img.substring(9,10);//9 indica a posição da letra depois da barra: "practice/a"
+						}else{
+							experiments[x].session[y][z].type = answers[z].img.substring(answers[z].img.length-1);
+							experiments[x].session[y][z].cod_img = answers[z].img.substring(6,8);
+							experiments[x].session[y][z].mode = answers[z].img.substring(8,9);
+						}
+						
 						experiments[x].session[y][z].exp_id = exp_id;
 						experiments[x].session[y][z].speaker_id = sessions[y].speaker_id;
 						experiments[x].session[y][z].hearer_id = sessions[y].hearer_id;
@@ -492,8 +501,10 @@ if (Meteor.isClient) {
 			var problem = Problems.findOne(Session.get('problem_id'));
 
 			var img = problem.img;
-
-			img = img.substring(6,12);
+			
+			if(img.indexOf('practice') == -1){
+				img = img.substring(6,12);
+			}
 			console.log(img);
 
 			var test = Tests.findOne({img: img});
@@ -752,10 +763,10 @@ if (Meteor.isClient) {
 	
 
 		var session = Sessions.findOne({exp_id: exp_id}, {sort: {created: -1}});
-		var img1 = 'type'+types[5]+'/'+conditions[5]+'-t'+types[5];
-		var img2 = 'type'+types[8]+'/'+conditions[8]+'-t'+types[8];
-		var img3 = 'type'+types[2]+'/'+conditions[2]+'-t'+types[2];
-		var img4 = 'type'+types[11]+'/'+conditions[11]+'-t'+types[11];
+		var img1 = 'practice/a';
+		var img2 = 'practice/b';
+		var img3 = 'practice/c';
+		var img4 = 'practice/d';
 
 		Problems.insert({session_id: session._id, img: img1, isFlipped: flipped[5], isActive: true, isPractice: true, created: Date.now()/1000});
 		Problems.insert({session_id: session._id, img: img2, isFlipped: flipped[8], isActive: true, isPractice: true, created: Date.now()/1000});
@@ -867,6 +878,12 @@ if (Meteor.isServer) {
 		Tests.insert({img: '07o-t2' ,type: 2, condition: '07o', correct_answer: 'I'});
 		Tests.insert({img: '08f-t2' ,type: 2, condition: '08f', correct_answer: 'A'});
 		Tests.insert({img: '08o-t2' ,type: 2, condition: '08o', correct_answer: 'A'});
+
+		Tests.insert({img: 'practice/a', correct_answer: 'H'});
+		Tests.insert({img: 'practice/b', correct_answer: 'A'});
+		Tests.insert({img: 'practice/c', correct_answer: 'M'});
+		Tests.insert({img: 'practice/d', correct_answer: 'I'});
+
 		console.log('tests created');
 	});
 	
