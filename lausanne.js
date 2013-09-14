@@ -440,8 +440,7 @@ if (Meteor.isClient) {
 					}
 				}
 			}
-			console.log('OK');
-			return;
+			
 			var words = ["esquerda", "direita", "acima", "em cima", "abaixo", "embaixo", "baixo"];
 
 			var allowed_sentences = ["esquerda d", "direita d", "acima d", "em cima d", "abaixo d", "embaixo d", "baixo d"];
