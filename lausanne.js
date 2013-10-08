@@ -112,6 +112,14 @@ Router.map(function() {
 					for(z in answers){
 
 						experiments[x].session[y][z].answer_id = answer_id;
+						
+						if(experiments[x].session[y][z].isFlipped){
+							experiments[x].session[y][z].img += 'r';
+						}else{
+							experiments[x].session[y][z].img += 'n';
+						}
+						
+
 						if(answers[z].img.indexOf('practice') != -1){
 							var index = answers[z].img.indexOf('practice');
 
@@ -323,6 +331,8 @@ if (Meteor.isClient) {
 			}else{
 				user_id = 1;
 			}
+
+			user_id = new Date().getTime().toString().substr(4);
 
 			Usuarios.insert({id: user_id, name: name, age: age, gender: gender, handwriting: handwriting , created: Date.now()/1000});
 			Session.set('user_id', user_id);
@@ -774,7 +784,7 @@ if (Meteor.isClient) {
 		Problems.insert({session_id: session._id, img: img4, isFlipped: flipped[11], isActive: true, isPractice: true, created: Date.now()/1000});
 
 		
-		for (var i = 0; i < 3; i++) {//Change 3 to 16
+		for (var i = 0; i < 16; i++) {//Change 3 to 16
 			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
 			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, isPractice: false, created: Date.now()/1000});
 		};
