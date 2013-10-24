@@ -332,7 +332,7 @@ if (Meteor.isClient) {
 				user_id = 1;
 			}
 
-			user_id = new Date().getTime().toString().substr(4);
+			user_id = new Date().getTime().toString();
 
 			Usuarios.insert({id: user_id, name: name, age: age, gender: gender, handwriting: handwriting , created: Date.now()/1000});
 			Session.set('user_id', user_id);
