@@ -77,7 +77,7 @@ Informações Importantes
 - **Registros dos usuários participantes:** *URL*/users
 
 
->**Nota:** O sistema não foi pensado para ser seguro, por ser utilizado em ambiente controlado. Recomenda-se
+>**Nota:** O sistema não foi pensado para ser seguro, por ser utilizado em ambiente controlado. Para isso deve-se estudar um pouco mais sobre isto no site do meteor removendo os pacotes insecure e autopublish, além de fazer as adaptações necessárias.
 
 
 Alterações no Sistema
