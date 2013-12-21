@@ -38,6 +38,8 @@ Instalação
 
 Sistema de instalação utilizado: **Ubuntu 13.10**
 
+- Instalar **Meteor**: `$ curl https://install.meteor.com | /bin/sh`
+
 - Instalar pacote **npm**: `$ sudo apt-get install npm`
 
 - Instalar **meteorite**: `$ sudo -H npm install -g meteorite`
