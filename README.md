@@ -107,6 +107,7 @@ Mesmo que haja somente um tipo de imagem, sua utilização é obrigatória.
 >**Exemplo 1**
 Serão inseridas 14 imagens e todas elas são do tipo 1 e serão exibidas. Então o array types deverá conter 14 posições preenchidas com o string '1'. 
 <br>
+
 >**Exemplo 2**
 Serão inseridas 16 imagens (condições diferentes) com 2 tipos diferentes e apenas 16 imagens serão exibidas. Então o array conditions terá todas as 16 possibilidades de condições diferentes que serão combinadas com os tipos 1 ou 2.
 <br>
