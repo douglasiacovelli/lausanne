@@ -210,6 +210,9 @@ function dateFormatted(timestamp){
 	if(day.length == 1){
 		day = '0' + day;
 	}
+	month = parseInt(month);
+	month += 1;
+	month = month + '';
 	if(month.length == 1){
 		month = '0' + month;
 	}
