@@ -778,7 +778,7 @@ if (Meteor.isClient) {
 		Problems.insert({session_id: session._id, img: img4, isFlipped: flipped[11], isActive: true, isPractice: true, created: Date.now()/1000});
 
 		
-		for (var i = 0; i < 16; i++) {//Change 3 to 16
+		for (var i = 0; i < conditions.length; i++) {
 			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
 			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, isPractice: false, created: Date.now()/1000});
 		};
