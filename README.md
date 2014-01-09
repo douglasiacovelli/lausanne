@@ -54,7 +54,7 @@ Por conta de um erro na instalação do node, pode ser que seja necessário exec
 
 - Entrar na pasta pelo terminal e digitar: `$ mrt`
 
-Assim serão baixados os plugins para o correto funcionamento e será colocado em execução o sistema localmente.
+Assim, serão baixados os plugins necessários e o sistema começará a rodar localmente.
 
 > **NOTA:** O sistema poderá ser acessado na url: http://localhost:3000/
 
@@ -63,20 +63,32 @@ Deploy
 
 O sistema pode ser utilizado online por meio do deploy fornecido no próprio servidor do meteor.
 
-`$ meteor deploy nomeQueVocêDesejar.meteor.com`
+`$ meteor deploy nomeDoSeuApp.meteor.com`
 
 
 ----------
 
 Manutenção da base coletada
------------------
+====
 Para visualizar:
+---
 
 - **os registros das respostas dos experimentos:** *URL*/experiments
     
 - **os registros dos usuários participantes:** *URL*/users
 
+---
+Para limpar a base:
+----
 
+ - **continuando a sequência de ids** de experimento e usuários: *URL*/clearDB/*password que você definir na linha 10*
+ <br>
+ - de forma a **reiniciar o sistema inteiro**, pelo terminal:
+ <br>
+     - `$ meteor deploy nomeDoSeuApp.meteor.com --delete`
+     - `$ meteor deploy nomeDoSeuApp.meteor.com`
+
+<br>
 >**Nota:** O sistema não foi pensado para ser seguro, por ser utilizado em ambiente controlado. [Material adicional sobre segurança no meteor.][1]
 
 
@@ -156,6 +168,20 @@ Outras modificações
 
 Fluxograma e Funcionamento do Sistema
 ------------------------
+O Sistema é baseado em Experiments. Cada Experiment possui uma Session e cada Session possui dois usuários associados, sendo um o hearer e outro o speaker. <br>
+
+São gerados então os Problems, que correspondem aos problemas destinados àqueles participantes.
+<br>
+
+Inicialmente são armazenadas as descriptions, que armazenam apenas a descrição feita pelo speaker associada à uma session. Por meio de checagem de timestamps, é verificada qual foi a última entrada no banco relacionada à session dos usuários atuais e dependendo do resultado o controle é trocado. Sendo a "vez" de o outro participante agir.
+<br>
+
+Então o usuário hearer escolhe a alternativa que ele julga ser correta e é criada uma tupla de Answer, que conterá as informações da Description feita pelo speaker com a resposta do hearer. Por fim, a resposta é comparada com a tabela de Tests criada inicialmente com todas as respostas para os problemas. A tupla é atualizada com o resultado da resposta. 
+<br>
+
+Ao fim da primeira rodada, os papeis são invertidos. É criada uma nova session em que o antigo speaker torna-se o hearer e vice-versa.
+
+
 ![Fluxograma][2]
   
 

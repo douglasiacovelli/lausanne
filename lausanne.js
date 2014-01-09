@@ -7,7 +7,7 @@ Answers = new Meteor.Collection('answers');
 Descriptions = new Meteor.Collection('descriptions');
 
 
-
+var pass = 'douglas';
 
 Router.map(function() { 
 	
@@ -22,6 +22,37 @@ Router.map(function() {
 
 	this.route('error', {
 		path: '/error'
+	});
+	
+	this.route('error', {
+		path: '/clearDB'
+	});
+
+	this.route('clearDB', {
+		path: '/clearDB/:pass'
+	},
+	function(){
+		if(this.params.pass != pass){
+			Router.go('error');
+		}else{
+
+			Usuarios.find().forEach(function(item){ console.log(item._id); Usuarios.remove({'_id':item._id});});
+			Problems.find().forEach(function(item){ Problems.remove({'_id':item._id});});
+			Sessions.find().forEach(function(item){ Sessions.remove({'_id':item._id});});
+			Answers.find().forEach(function(item){ Answers.remove({'_id':item._id});});
+			Descriptions.find().forEach(function(item){ Descriptions.remove({'_id':item._id});});
+			
+			var last_experiment = Experiments.findOne({},{sort: {created: -1}});
+			if(Experiments.find().fetch().length > 1){
+				Experiments.find().forEach(function(item){ Experiments.remove({'_id':item._id});});
+				Experiments.insert(last_experiment);
+			}
+			
+			setTimeout(function(){
+				Router.go('home');
+			},3000);
+		}
+
 	});
 	/**
 	 * Routing para a 2a pagina - Posterior ao cadastro.
@@ -367,6 +398,7 @@ if (Meteor.isClient) {
 
 		'submit #enter' : function() {
 			 var exp_id = document.getElementById('enter-input').value;
+			 exp_id = exp_id.toUpperCase();
 			 if(exp_id){
 				
 				// wrong_input is used by the template to show or hide any kind of error on the form.
@@ -641,14 +673,18 @@ if (Meteor.isClient) {
 				
 				//Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
 				Router.go('change_role', {user_type: 'hearer'});
+				
 
 			}else{
 
 				var exp = Experiments.findOne({id: Session.get('exp_id')});
-			
-				Router.go('ending');
-			
 				
+				var sessions = Sessions.find({exp_id: Session.get('exp_id')}).fetch();
+				
+				Problems.find({$or: [{session_id: sessions[0]._id},{session_id: sessions[1]._id}]}).forEach(function(item){ Problems.remove({'_id':item._id});});
+				
+
+				Router.go('ending');
 			}
 
 		}
@@ -775,18 +811,23 @@ if (Meteor.isClient) {
 		var img3 = 'practice/c';
 		var img4 = 'practice/d';
 
-		Problems.insert({session_id: session._id, img: img1, isFlipped: flipped[5], isActive: true, isPractice: true, created: Date.now()/1000});
-		Problems.insert({session_id: session._id, img: img2, isFlipped: flipped[8], isActive: true, isPractice: true, created: Date.now()/1000});
-		Problems.insert({session_id: session._id, img: img3, isFlipped: flipped[2], isActive: true, isPractice: true, created: Date.now()/1000});
-		Problems.insert({session_id: session._id, img: img4, isFlipped: flipped[11], isActive: true, isPractice: true, created: Date.now()/1000});
+		
+
+		Problems.insert({session_id: session._id, img: img1, isFlipped: flipped[getRandomInt(0, conditions.length)], isActive: true, isPractice: true, created: Date.now()/1000});
+		Problems.insert({session_id: session._id, img: img2, isFlipped: flipped[getRandomInt(0, conditions.length)], isActive: true, isPractice: true, created: Date.now()/1000});
+		Problems.insert({session_id: session._id, img: img3, isFlipped: flipped[getRandomInt(0, conditions.length)], isActive: true, isPractice: true, created: Date.now()/1000});
+		Problems.insert({session_id: session._id, img: img4, isFlipped: flipped[getRandomInt(0, conditions.length)], isActive: true, isPractice: true, created: Date.now()/1000});
 
 		
-		for (var i = 0; i < conditions.length; i++) {
+		for (var i = 0; i < 3; i++) {
 			var img = 'type'+types[i]+'/'+conditions[i]+'-t'+types[i];
 			Problems.insert({session_id: session._id, img: img, isFlipped: flipped[i], isActive: true, isPractice: false, created: Date.now()/1000});
 		};
 	}
 
+	function getRandomInt (min, max) {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
 	/**
 	 * Function to determine what is the next problem to be showed to both of the participants
 	 */
@@ -897,8 +938,8 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
 
 	Meteor.startup(function () {
-		var tests = Tests.find().fetch();
-		if(!tests){
+		var tests = Tests.find().fetch().length;
+		if(tests == 0){
 			/**
 			 * This section below should be inserted all the possible tests. It's important to notice that
 			 * the search parameter is the 'img', considering that it must be unique.
