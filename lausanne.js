@@ -24,8 +24,9 @@ Router.map(function() {
 		path: '/error'
 	});
 	
-	this.route('error', {
-		path: '/clearDB'
+	this.route('clearDBWrong', {
+		path: '/clearDB',
+		template: 'error'
 	});
 
 	this.route('clearDB', {
@@ -732,6 +733,13 @@ if (Meteor.isClient) {
 
 		}
 	};
+
+	//
+	Template.hearer.options = function(){
+		var options = ['A','H','I','M','O','Não Entendi'];
+		return options;
+		//return ['Sim','Não','Não sei'];
+	} 
 
 	/**
 	 * EXPERIMENT CREATION

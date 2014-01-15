@@ -190,12 +190,10 @@
 			<div class="row-fluid">
 				<div class="span10">
 					<div class="btn-group" id="answer" data-toggle="buttons-radio">
-						<button type="button" class="btn">A</button>
-						<button type="button" class="btn">H</button>
-						<button type="button" class="btn">I</button>
-						<button type="button" class="btn">M</button>
-						<button type="button" class="btn">O</button>
-						<button type="button" class="btn">Não Entendi</button>
+						{{#each options}}
+								<button type="button" class="btn">{{ this }}</button>
+								{{ this }}
+						{{/each}}
 					</div>
 					<div class="spacer-20"></div>
 					{{#if wrong_input }}

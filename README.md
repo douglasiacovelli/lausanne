@@ -94,6 +94,16 @@ Para limpar a base:
 
 Alterações no Sistema
 =====================
+Alterando as possíveis opções de resposta do ouvinte
+-------------------
+Deve-se **alterar** o array options, substituindo os os valores atuais pelas opções desejadas:
+```javascript
+Template.hearer.options = function(){
+    var options = ['A','H','I','M','O','Não Entendi'];
+    return options;
+};
+```
+
 Alterando as imagens da base
 -------------------
 É importante que as imagens a serem inseridas possuam o nome no seguinte formato para se facilitar a adaptação:
