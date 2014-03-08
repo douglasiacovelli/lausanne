@@ -8,6 +8,7 @@ Descriptions = new Meteor.Collection('descriptions');
 
 
 var pass = 'douglas';
+var coop = false;
 
 Router.map(function() { 
 	
@@ -374,7 +375,13 @@ if (Meteor.isClient) {
 			console.log('ok');
 
 			Session.set('wrong_input', false);
-			Router.go('start');
+			
+			if(coop){
+				Router.go('start');	
+			}else{
+				createExperiment();
+			}
+			
 
 		}
 	});
@@ -393,7 +400,7 @@ if (Meteor.isClient) {
 	Template.start.events({
 
 		'click #create' : function() {
-			createExperiment(false);
+			createExperiment();
 			
 		},
 
@@ -520,8 +527,19 @@ if (Meteor.isClient) {
 			
 			};
 			
+			var problem = Problems.findOne(Session.get('problem_id'));
+			var isFlipped = false;
+			if(problem.isFlipped != ''){
+				isFlipped = true;
+			}
 
-			Descriptions.insert({ session_id: Session.get('session_id'), message: messageInput, created: Date.now()/1000 });
+			if(coop){
+				Descriptions.insert({ session_id: Session.get('session_id'), message: messageInput, created: Date.now()/1000 });
+			}else{
+				Answers.insert({ session_id: Session.get('session_id'), description: messageInput, isFlipped: isFlipped, img: problem.img, created: Date.now()/1000 });
+				Problems.update(Session.get('problem_id'), {$set: {isActive: false}});
+			}
+			
 
 			document.getElementById('message').value = '';
 			console.log('input limpo');
@@ -625,7 +643,12 @@ if (Meteor.isClient) {
 	}
 
 	Template.speaker.waiting = function(){
-		return amIwaiting('speaker', Session.get('session_id'));
+		if(coop){
+			return amIwaiting('speaker', Session.get('session_id'));
+		}else{
+			return false;
+		}
+		
 	}
 
 	Template.speaker.type = function(){
@@ -673,7 +696,12 @@ if (Meteor.isClient) {
 				prepareSessionProblems(Session.get('exp_id'), conditions, types, flipped);
 				
 				//Router.go('experiment', {id: Session.get('exp_id'), user_type: 'hearer'});
-				Router.go('change_role', {user_type: 'hearer'});
+				if(coop){
+					Router.go('change_role', {user_type: 'hearer'});	
+				}else{
+					Router.go('ending');
+				}
+				
 				
 
 			}else{
@@ -748,7 +776,7 @@ if (Meteor.isClient) {
 	 * record to create an incremental id, which is assembled with 2 random letters.
 	 */
 
-	function createExperiment(isPractice){
+	function createExperiment(){
 		var exp = Experiments.findOne({}, {sort: {created: -1}});
 		
 		var letter1 = randomLetter();
@@ -772,7 +800,7 @@ if (Meteor.isClient) {
 		/**
 		 *
 		 * Every experiment starts as a Practice (isPractice: true) for both of the users know that
-		 * they're practicing. Thus, at the end of the practices, the tuple is updated to
+		 * they're practicing. Thus, at the end of the practices, the record is updated to
 		 * change the isPractice to false.
 		 *
 		 */
